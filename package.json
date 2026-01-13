@@ -22,8 +22,10 @@
     },
     "dependencies": {
         "@coreui/bootstrap-vue": "^1.0.0-beta.0",
-        "bootstrap": "^5.2.3",
+        "bootstrap": "^4.6.2",
+        "bootstrap-vue": "^2.23.1",
         "pinia": "^3.0.4",
+        "vue": "^3.5.26",
         "vue-bootstrap-slider": "^2.1.8"
     }
 }

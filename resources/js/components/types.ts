@@ -4,7 +4,7 @@ export interface Product {
     title?: string,
     price?: number,
     color?: string,
-    type?: string,
+    type?: string
   }
 
 export interface State {

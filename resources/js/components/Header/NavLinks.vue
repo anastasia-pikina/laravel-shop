@@ -8,15 +8,15 @@
 
 const navLinks = [
   {
-    name: 'Home',
+    name: 'Главная',
     Link: '/'
   },
   {
-    name: 'Products',
+    name: 'Каталог',
     Link: '/products'
   },
   {
-    name: 'Contact',
+    name: 'Контакты',
     Link: '/contact'
   }
 ];

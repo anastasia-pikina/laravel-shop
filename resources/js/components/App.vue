@@ -1,6 +1,6 @@
 <script setup>
-import Header from "./Header.vue";
-import Footer from "./Footer.vue";
+import Header from "./Layers/Header.vue";
+import Footer from "./Layers/Footer.vue";
 import '../assets/styles/main.scss'
 </script>
 <template>
