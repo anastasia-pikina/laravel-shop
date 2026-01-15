@@ -2,23 +2,37 @@
   <div>
     <div class="row mb-5">
       <div class="col6 col-xl-6 col-lg-6 col-md-12 col-sm-12">
-        <img class="img-fluid" :src="item.image">
+          <CPlaceholder v-if="isLoading" component="div" animation="glow" style="aspect-ratio: 1/1; width: 100%;">
+              <CPlaceholder component="div" size="lg" style="height: 100%; width: 100%;" />
+          </CPlaceholder>
+        <img v-else class="img-fluid" :src="item.image">
       </div>
 
       <div class="col6 col-xl-6 col-lg-6 col-md-12 col-sm-12 d-flex align-items-center justify-content-start">
-        <div class="info pt-xl-0 pt-lg-0 pt-5">
-            <CPlaceholder component="p" animation="glow">
+        <div class="info pt-xl-0 pt-lg-0 pt-5" style="min-width: 250px;">
+            <CCardTitle v-c-placeholder="{animation: 'glow', xs: 12}">
+                <CPlaceholder :xs="12" />
+            </CCardTitle>
+            <CPlaceholder  component="p" animation="wave">
+                <CPlaceholder :xs="12" size="lg" style="height: 100px;" />
+            </CPlaceholder>
+            <span class="pr-3">★★★★★</span>
+            <CPlaceholder  component="p" animation="wave">
                 <CPlaceholder :xs="12" />
             </CPlaceholder>
-
+            <h6  style="width:190px;">3 reviews</h6>
             <CPlaceholder component="p" animation="wave">
                 <CPlaceholder :xs="12" />
             </CPlaceholder>
-            <span class="pr-3">★★★★★</span>
-          <h6 style="width:190px;">3 reviews</h6>
-          <h1 class="font-weight-bold text-uppercase pt-3">{{ item.name }}</h1>
+            <h1 class="font-weight-bold text-uppercase pt-3">{{ item.name }}</h1>
+            <CPlaceholder component="p" animation="wave">
+                <CPlaceholder :xs="12" />
+            </CPlaceholder>
           <h4>{{ item.price }} руб</h4>
           <br><br><br>
+            <CPlaceholder component="p" animation="wave">
+                <CPlaceholder :xs="12" />
+            </CPlaceholder>
           <div class="control number text-center">
             <button class="decrement-button" @click="decrememnt"
               style="border-right: 0.2px solid lightgrey;float:left;margin-right: 11px;">−</button>
@@ -27,6 +41,9 @@
               style="border-left: 0.2px solid lightgrey;margin-left: 16px;">+</button>
             <br><br>
           </div>
+            <CPlaceholder component="p" animation="wave">
+                <CPlaceholder :xs="12" />
+            </CPlaceholder>
           <button class="add-to-cart-button" @click="addtoCart(item)">В корзину</button>
         </div>
       </div>
@@ -38,7 +55,7 @@
 import { Product } from '../../types'
 import {useMainStore} from '../../../store';
 import { ref } from 'vue';
-import { CPlaceholder } from '@coreui/bootstrap-vue';
+import { CPlaceholder, CCardImage, CCardTitle } from '@coreui/bootstrap-vue';
 import 'bootstrap/dist/css/bootstrap.min.css'
 import '@coreui/coreui/dist/css/coreui.css'
 import { CButton } from '@coreui/bootstrap-vue';
@@ -64,7 +81,7 @@ function addtoCart(item: object) {
 
 <style scoped lang="scss">
 .img-fluid {
-  min-width: 90% !important;
+  min-width: 100% !important;
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 
