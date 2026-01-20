@@ -2,7 +2,7 @@
   <div>
     <div class="row mb-5">
       <div class="col6 col-xl-6 col-lg-6 col-md-12 col-sm-12">
-          <CPlaceholder v-if="isLoading" component="div" animation="glow" style="aspect-ratio: 1/1; width: 100%;">
+          <CPlaceholder v-if="isLoading" component="div" animation="glow" class="loading-square" style="aspect-ratio: 1/1;">
               <CPlaceholder component="div" size="lg" style="height: 100%; width: 100%;" />
           </CPlaceholder>
         <img v-else class="img-fluid" :src="item.image">
@@ -10,41 +10,43 @@
 
       <div class="col6 col-xl-6 col-lg-6 col-md-12 col-sm-12 d-flex align-items-center justify-content-start">
         <div class="info pt-xl-0 pt-lg-0 pt-5" style="min-width: 250px;">
-            <CCardTitle v-c-placeholder="{animation: 'glow', xs: 12}">
-                <CPlaceholder :xs="12" />
-            </CCardTitle>
-            <CPlaceholder  component="p" animation="wave">
-                <CPlaceholder :xs="12" size="lg" style="height: 100px;" />
+            <CPlaceholder v-if="isLoading" component="div" animation="glow" class="loading-square" style="aspect-ratio: 6/1;">
+                <CPlaceholder component="div" size="lg" style="height: 100%; width: 100%;" />
             </CPlaceholder>
-            <span class="pr-3">★★★★★</span>
-            <CPlaceholder  component="p" animation="wave">
-                <CPlaceholder :xs="12" />
+            <template v-else>
+                <span class="pr-3">★★★★★</span>
+                <h6  style="width:190px;">3 reviews</h6>
+            </template>
+            <h1 class="font-weight-bold text-uppercase pt-3">
+                <CPlaceholder v-if="isLoading" component="div" animation="glow" class="loading-square" style="aspect-ratio: 6/1;">
+                    <CPlaceholder component="div" size="lg" style="height: 100%; width: 100%;" />
+                </CPlaceholder>
+                <template v-else>
+                    {{ item.name }}
+                </template>
+            </h1>
+          <h4>
+              <CPlaceholder v-if="isLoading" component="div" animation="glow" class="loading-fix-size">
+                  <CPlaceholder component="div" size="lg" style="height: 100%; width: 100%;" />
+              </CPlaceholder>
+              <template v-else>
+                  {{ item.price }} руб
+              </template>
+          </h4>
+            <CPlaceholder v-if="isLoading" component="div" animation="glow" class="loading-fix-size mb-4">
+                <CPlaceholder component="div" size="lg" style="height: 100%; width: 100%;" />
             </CPlaceholder>
-            <h6  style="width:190px;">3 reviews</h6>
-            <CPlaceholder component="p" animation="wave">
-                <CPlaceholder :xs="12" />
-            </CPlaceholder>
-            <h1 class="font-weight-bold text-uppercase pt-3">{{ item.name }}</h1>
-            <CPlaceholder component="p" animation="wave">
-                <CPlaceholder :xs="12" />
-            </CPlaceholder>
-          <h4>{{ item.price }} руб</h4>
-          <br><br><br>
-            <CPlaceholder component="p" animation="wave">
-                <CPlaceholder :xs="12" />
-            </CPlaceholder>
-          <div class="control number text-center">
+          <div v-else class="control number text-center">
             <button class="decrement-button" @click="decrememnt"
               style="border-right: 0.2px solid lightgrey;float:left;margin-right: 11px;">−</button>
             <span>{{ quantity }}</span>
             <button class="increment-button" @click="incrememnt"
               style="border-left: 0.2px solid lightgrey;margin-left: 16px;">+</button>
-            <br><br>
           </div>
-            <CPlaceholder component="p" animation="wave">
-                <CPlaceholder :xs="12" />
+            <CPlaceholder v-if="isLoading" component="div" animation="glow" style="height: 35px; width: 155px; margin-bottom: 35px;">
+                <CPlaceholder component="div" size="lg" style="height: 100%; width: 100%;" />
             </CPlaceholder>
-          <button class="add-to-cart-button" @click="addtoCart(item)">В корзину</button>
+            <button v-else class="add-to-cart-button disabled" @click="addtoCart(item)">В корзину</button>
         </div>
       </div>
     </div>
@@ -55,7 +57,7 @@
 import { Product } from '../../types'
 import {useMainStore} from '../../../store';
 import { ref } from 'vue';
-import { CPlaceholder, CCardImage, CCardTitle } from '@coreui/bootstrap-vue';
+import { CPlaceholder, CCardImage, CCardTitle, CCardBody, CCardText } from '@coreui/bootstrap-vue';
 import 'bootstrap/dist/css/bootstrap.min.css'
 import '@coreui/coreui/dist/css/coreui.css'
 import { CButton } from '@coreui/bootstrap-vue';
@@ -133,5 +135,14 @@ function addtoCart(item: object) {
     background-color: inherit;
     color: black;
   }
+}
+
+.loading-square {
+    width: 100%;
+}
+
+.loading-fix-size {
+    height: 35px;
+    width: 155px;
 }
 </style>

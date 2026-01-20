@@ -29,7 +29,6 @@ const store = useMainStore()
 const route = useRoute();
 
 const downloadStatus = ref('notDownload');
-
 interface Item {
     details: Product
     relatedItems: Product[]

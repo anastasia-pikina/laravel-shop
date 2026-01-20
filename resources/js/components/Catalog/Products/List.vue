@@ -73,8 +73,6 @@ const getProducts = async () => {
     }
     //grid.cards = response.data.products;
     totalCount.value = response.data.count ?? 0;
-    console.log(grid.cards)
-
 };
 
 const sortItems = (value) => {

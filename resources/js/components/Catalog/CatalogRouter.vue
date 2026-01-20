@@ -1,5 +1,6 @@
 <script setup>
 
+import BreadCrumbs from "../Layers/BreadCrumbs.vue";
 </script>
 
 <template>

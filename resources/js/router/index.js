@@ -9,6 +9,9 @@ const routes = [
     {
         path: '/',
         component: Home,
+        meta: {
+            breadcrumb: 'Home' // Can be just a string
+        },
     },
     {
         path: '/products',
@@ -30,10 +33,24 @@ const routes = [
                 name: 'Product',
             },
         ],
+        meta: {
+            // Can be an object
+            breadcrumb: {
+                label: 'Каталог',
+                link: '/products' // custom link
+            },
+        }
     },
     {
         path: '/contact',
         component: Contact,
+        meta: {
+            // Can be an object
+            breadcrumb: {
+                label: 'Контакты',
+                link: '/contact' // custom link
+            },
+        }
     },
 ];
 

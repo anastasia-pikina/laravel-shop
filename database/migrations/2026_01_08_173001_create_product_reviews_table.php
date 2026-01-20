@@ -16,7 +16,7 @@ return new class extends Migration
             $table->text('text');
             $table->unsignedBigInteger('product_id');
             $table->timestamps();
-            $table->integer('rating');
+            $table->integer('rating')->default(0);
             $table->foreign('product_id')->references('id')->on('products');
         });
     }
