@@ -64,7 +64,7 @@ const onFormSubmit = async ({ valid }) => {
 
     console.log(data)
     sendStatus.value = 'inProcess';
-    const response = await axios.post('/api/reviews/' + props.productId, data);
+    const response = await axios.put('/api/reviews/' + props.productId, data);
     sendStatus.value = 'inProcessSuccess';
     console.log(data)
 }
@@ -105,7 +105,7 @@ const addNewReview = () => {
                 </FormField>
                 <Button :loading="inProcess" type="submit" severity="secondary" label="Отправить"/>
             </Form>
-            <div v-if="inProcessSuccess">Отзыв отправлен</div>
+            <div v-if="inProcessSuccess">Отзыв отправлен. Он будет опубликован после подтверждения.</div>
         </Dialog>
     </div>
 </template>

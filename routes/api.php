@@ -11,5 +11,6 @@ Route::get('/user', function (Request $request) {
 
 Route::apiResource('products', ProductController::class);
 Route::get('/products', [ProductController::class, 'getNews']);
-Route::get('/reviews/{productId}', [ProductReviewsController::class, 'getProductReviews']);
-Route::post('/reviews/{productId}', [ProductReviewsController::class, 'store']);
+Route::apiResource('/reviews', ProductReviewsController::class);
+//Route::get('/reviews', [ProductReviewsController::class, 'getProductReviews']);
+//Route::get('/reviews/count/{product_id}', [ProductReviewsController::class, 'getProductReviewCount']);

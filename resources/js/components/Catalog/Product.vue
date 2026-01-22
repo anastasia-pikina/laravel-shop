@@ -2,7 +2,7 @@
     <div class="container py-5" style="padding-top:70px;">
         <!-- TODO dont allow accessing of the route to this page '/info' except if there is info to display -->
         <BreadCrumbs :details="(item.details)" />
-        <Box :item="item.details" :isLoading="downloadStatus === 'isDownloading'" />
+        <Box :item="item.details" :reviews="reviews" :isLoading="downloadStatus === 'isDownloading'" />
         <Text :item="item.details" />
 
         <div class="related-item">
@@ -31,20 +31,27 @@ const route = useRoute();
 const downloadStatus = ref('notDownload');
 interface Item {
     details: Product
-    relatedItems: Product[]
+    relatedItems: Product[],
 }
 
 const item: Item = reactive({
     details: {},
     relatedItems: []
-})
+});
+
+const reviews = ref({
+    count: 0,
+    average_rating: 0,
+});
 
 onMounted(async () => {
     downloadStatus.value = 'isDownloading';
     let itemId = Number(route.params.id)
     const response = await axios.get('/api/products/' + itemId);
     downloadStatus.value = 'isDownload'
-    item.details = response.data;
+    item.details = response.data.product;
+    reviews.value.count = response.data.reviews_count;
+    reviews.value.average_rating = response.data.reviews_average_rating;
 })
 
 const sliceItems = computed(() => {

@@ -5,19 +5,49 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use App\Models\ProductReviews;
+use Illuminate\Support\Facades\DB;
 
 class ProductReviewsController extends Controller
 {
-    public function getProductReviews(int $productId): array
+
+    public function index(Request $request): array
     {
+        sleep(1);
+        $page = $request->get('page', 1);
+        $limit = $request->get('limit', 10);
+        $productsCount = DB::table('product_reviews')
+            ->where('product_id', $request->get('product_id'))
+            ->where('is_confirmed', true)
+            ->count();
+        $prod = ProductReviews::query()
+            ->where('product_id', $request->get('product_id'))
+            ->where('is_confirmed', true)
+            ->orderBy('id', 'desc')
+            ->skip(($page - 1) * $limit)->take($limit)->get();
+        $productList = [];
+        foreach ($prod as $prodItem) {
+            $prodItem['category'] = $prodItem->category;
+            $productList[] = $prodItem;
+        }
+//        print_r($prod);
+//        print_r($products);
+        return [
+            'reviews' => $productList,
+            'count' => $productsCount,
+        ];
        // sleep(10);
-        return ProductReviews::where('product_id', $productId)->get()->toArray();
+        //return ProductReviews::where('product_id', $productId)->get()->toArray();
     }
 
-    public function store(Request $request)
+    public function getProductReviewCount($product_id)
     {
-        sleep(10);
-        $data = $request->all();
-        return ProductReviews::create($data);
+        print $product_id  . '111';
+        die;
+
+    }
+
+    public function update(Request $request)
+    {
+        return ProductReviews::create($request->all());
     }
 }

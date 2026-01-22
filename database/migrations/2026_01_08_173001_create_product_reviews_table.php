@@ -18,6 +18,7 @@ return new class extends Migration
             $table->timestamps();
             $table->integer('rating')->default(0);
             $table->foreign('product_id')->references('id')->on('products');
+            $table->boolean('is_confirmed')->default(false);
         });
     }
 

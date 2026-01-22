@@ -20,8 +20,11 @@ class ProductController extends Controller
 
     public function show(Product $product)
     {
-       // sleep(10);
-        return $product;
+        return [
+            'product' => $product,
+            'reviews_count' => $product->reviews()->where('is_confirmed', 1)->get()->count(),
+            'reviews_average_rating' => round($product->reviews()->where('is_confirmed', 1)->get()->avg('rating'), 1),
+        ];
     }
 
     public function update(Request $request, Product $product)

@@ -74,16 +74,16 @@ const isShowReviews = computed(() => {
 const selectedInfo = (index: number): number => text.active = index;
 
 onMounted(async () => {
-    downloadStatus.value = 'isDownloading';
-    let itemId = Number(route.params.id)
-  //  const response = await axios.get('/api/reviews/' + itemId);
-    downloadStatus.value = 'isDownload';
-    reviews.value = response.data;
+  //   downloadStatus.value = 'isDownloading';
+  //   let itemId = Number(route.params.id)
+  // //  const response = await axios.get('/api/reviews/' + itemId);
+  //   downloadStatus.value = 'isDownload';
+  //   reviews.value = response.data;
 });
 
-const isAddReviewMode = () => {
-    isAddReview.value = true;
-}
+// const isAddReviewMode = () => {
+//     isAddReview.value = true;
+// }
 
 </script>
 
