@@ -3,7 +3,7 @@
         <div class="more info d-flex justify-content-between text-center">
             <div class="col4 flex-fill" v-for="(info, index) in text.moreInfo"
                  :class="[index === text.active ? 'col4 active' : '']" @click="selectedInfo(index)" :key="index">
-                <h6>{{ info }}</h6>
+                <h6 class="tab">{{ info }}</h6>
             </div>
         </div>
         <div class="container pt-3" v-if="isShowDescription">
@@ -43,7 +43,7 @@ import Card from 'primevue/card';
 const route = useRoute()
 
 const text = reactive({
-    moreInfo: ['DESCRIPTION', 'REVIEWS'],
+    moreInfo: ['Описание', 'Отзывы'],
     active: 0,
 });
 
@@ -94,6 +94,10 @@ onMounted(async () => {
     border-bottom: 1px solid lightgrey;
     color: grey;
     cursor: pointer;
+
+    &.tab {
+        text-transform: uppercase;
+    }
 }
 
 .col4.active h6 {

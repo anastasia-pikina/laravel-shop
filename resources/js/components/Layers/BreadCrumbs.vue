@@ -1,38 +1,65 @@
 <template>
-  <div>
-    <h1 class="pt-3 text-center">New arrivals</h1>
-      {{breadcrumbs}}
-      <nav class="breadcrumb">
-          <ul>
-              <li v-for="(crumb, index) in breadcrumbs" :key="index">
-                  <router-link :to="crumb.to">{{ crumb.label }}</router-link>
-              </li>
-          </ul>
-      </nav>
-    <nav class="d-flex justify-content-center" aria-label="breadcrumb">
-      <ol class="breadcrumb">
-        <li class="breadcrumb-item">
-          <router-link to="/">Home</router-link>
-        </li>
-        <li class="breadcrumb-item active" aria-current="page">Products</li>
-      </ol>
-    </nav>
-  </div>
+    {{breadcrumbs}}
+    <Breadcrumb :home="home" :model="items">
+        <template #item="{ item, props }">
+            <router-link v-if="item.route" v-slot="{ href, navigate }" :to="item.route" custom>
+                <a :href="href" v-bind="props.action" @click="navigate">
+                    <span :class="[item.icon, 'text-color']" />
+                    <span class="text-primary font-semibold">{{ item.label }}</span>
+                </a>
+            </router-link>
+            <a v-else :href="item.url" :target="item.target" v-bind="props.action">
+                <span class="text-surface-700 dark:text-surface-0">{{ item.label }}</span>
+            </a>
+        </template>
+    </Breadcrumb>
 </template>
 
 <script setup lang="ts">
 import {useRoute} from "vue-router";
 import {reactive, onMounted, computed, ref} from 'vue';
+import Breadcrumb from 'primevue/breadcrumb';
 
-const route = useRoute();
+const home = ref({
+    icon: 'pi pi-home',
+    route: '/'
+});
+// const items = ref([
+//     { label: 'Components' },
+//     { label: 'Form' },
+//     { label: 'InputText', route: '/inputtext' }
+// ]);
+
+const items = ref([]);
+
+const router = useRoute();
 
 const breadcrumbs = computed(() => {
-    const matchedRoutes = route.matched;
-    console.log(matchedRoutes);
-    return matchedRoutes.map((routeItem) => ({
-        label: routeItem.meta.breadcrumb || routeItem.name,
-        to: getRoutePath(route, routeItem),
-    }));
+    console.log(router)
+    const linkCount = router.matched.length;
+    let i = 0;
+    for (const t of router.matched) {
+        i++;
+        let routerData = {label: t.meta.breadcrumb.label};
+        if (i < linkCount) {
+            routerData.route = t.path;
+        }
+        items.value.push(routerData);
+    }
+    // let activedRoutes = [];
+    // router.beforeEach((to, from, next) => {
+    //    // activedRoutes = [];
+    //     to.matched.forEach((record) => { activedRoutes.push(record) })
+    //     next();
+    // });
+
+    //return activedRoutes;
+    // const matchedRoutes = route.matched;
+    // console.log(matchedRoutes);
+    // return matchedRoutes.map((routeItem) => ({
+    //     label: routeItem.meta.breadcrumb || routeItem.name,
+    //     to: getRoutePath(route, routeItem),
+    // }));
     // const routes = route.matched.map(r => {
     //     return {
     //         text: r.name || 'Unnamed',

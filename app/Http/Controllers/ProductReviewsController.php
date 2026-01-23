@@ -12,7 +12,7 @@ class ProductReviewsController extends Controller
 
     public function index(Request $request): array
     {
-        sleep(1);
+        sleep(5);
         $page = $request->get('page', 1);
         $limit = $request->get('limit', 10);
         $productsCount = DB::table('product_reviews')
@@ -22,7 +22,7 @@ class ProductReviewsController extends Controller
         $prod = ProductReviews::query()
             ->where('product_id', $request->get('product_id'))
             ->where('is_confirmed', true)
-            ->orderBy('id', 'desc')
+            ->orderBy('created_at', 'desc')
             ->skip(($page - 1) * $limit)->take($limit)->get();
         $productList = [];
         foreach ($prod as $prodItem) {

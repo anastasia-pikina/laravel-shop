@@ -26,20 +26,32 @@ const routes = [
                 path: ':category?',
                 component: Products,
                 name: 'Products',
+                meta: {
+                    // Can be an object
+                    breadcrumb: {
+                        label: 'Каталог',
+                    },
+                },
             },
             {
                 path: ':category/:id/',
                 component: Product,
                 name: 'Product',
+                meta: {
+                    // Can be an object
+                    breadcrumb: {
+                        label: 'Товар',
+                    },
+                },
             },
         ],
         meta: {
             // Can be an object
             breadcrumb: {
                 label: 'Каталог',
-                link: '/products' // custom link
             },
-        }
+        },
+        name: 'CatalogRouter',
     },
     {
         path: '/contact',
