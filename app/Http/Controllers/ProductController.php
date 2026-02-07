@@ -20,6 +20,7 @@ class ProductController extends Controller
 
     public function show(Product $product)
     {
+        $product['category'] = $product->category;
         return [
             'product' => $product,
             'reviews_count' => $product->reviews()->where('is_confirmed', 1)->get()->count(),
@@ -43,16 +44,37 @@ class ProductController extends Controller
       //  sleep(10);
         $page = $request->get('page', 1);
         $limit = $request->get('limit', 10);
+        $categoryId = (int) $request->get('categoryId', 0);
         $productsCount = DB::table('products')->count();
-        $products = DB::table('products')->orderBy('id', 'desc')->skip(($page - 1) * $limit)->take($limit)->get();
+        $products = DB::table('products')
+            ->orderBy('id', 'desc')
+            ->where('category_id', $categoryId)
+            ->skip(($page - 1) * $limit)
+            ->take($limit)
+            ->get();
 //        foreach ($products as $product) {
 //            print $product->category;
 //        }
        // Product::where('id', 3);
-        $prod = Product::query()->orderBy('id', 'desc')->skip(($page - 1) * $limit)->take($limit)->get();
+        $prodRequest = Product::query()
+            //->where('category_id', $categoryId)
+            ->orderBy('id', 'desc')
+            ->skip(($page - 1) * $limit)
+            ->take($limit);
+            //->get();
+
+        if ($categoryId > 0) {
+            $prodRequest->where('category_id', $categoryId);
+        }
+        $prod = $prodRequest->get();
+
         $productList = [];
+        $category = '';
         foreach ($prod as $prodItem) {
            $prodItem['category'] = $prodItem->category;
+           if ($categoryId > 0) {
+               $category = $prodItem->category;
+           }
             $productList[] = $prodItem;
         }
 //        print_r($prod);
@@ -60,6 +82,7 @@ class ProductController extends Controller
         return [
             'products' => $productList,
             'count' => $productsCount,
+            'category' => $category,
         ];
     }
 }

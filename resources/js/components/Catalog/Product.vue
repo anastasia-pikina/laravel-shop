@@ -1,7 +1,7 @@
 <template >
+    <BreadCrumbs :breadItems="breadItems" />
     <div class="container py-5" style="padding-top:70px;">
         <!-- TODO dont allow accessing of the route to this page '/info' except if there is info to display -->
-        <BreadCrumbs :details="(item.details)" />
         <Box :item="item.details" :reviews="reviews" :isLoading="downloadStatus === 'isDownloading'" />
         <Text :item="item.details" />
 
@@ -15,6 +15,7 @@
 </template>
 
 <script setup lang="ts">
+
 import { useRoute } from 'vue-router';
 import {reactive, onMounted, computed, ref} from 'vue';
 import { Product } from '../types';
@@ -44,7 +45,12 @@ const reviews = ref({
     average_rating: 0,
 });
 
+const breadItems = ref([]);
+
+const router = useRoute();
+
 onMounted(async () => {
+    breadItems.value = [];
     downloadStatus.value = 'isDownloading';
     let itemId = Number(route.params.id)
     const response = await axios.get('/api/products/' + itemId);
@@ -52,6 +58,13 @@ onMounted(async () => {
     item.details = response.data.product;
     reviews.value.count = response.data.reviews_count;
     reviews.value.average_rating = response.data.reviews_average_rating;
+
+    breadItems.value = store.getBreadCrumbs(router, {
+        '#product_name#': item.details.name,
+        '#category_link#': item.details.category_id,
+        '#category_name#': item.details.category.name,
+    });
+    console.log(breadItems.value)
 })
 
 const sliceItems = computed(() => {

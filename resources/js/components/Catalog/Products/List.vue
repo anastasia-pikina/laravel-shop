@@ -1,4 +1,5 @@
 <template>
+    <BreadCrumbs :breadItems="breadItems" />
   <div class="container mb-4">
     <div class="mx-3">
       <DropDownFilters @sort-item="sortItems" />
@@ -35,6 +36,7 @@ import Pagination from '../../Pagination/Pagination.vue';
 import axios from 'axios';
 import { useRoute } from 'vue-router';
 import { CSpinner } from '@coreui/bootstrap-vue';
+import BreadCrumbs from "../../Layers/BreadCrumbs.vue";
 
 const currentPage = ref(0);
 const totalCount = ref(0);
@@ -47,8 +49,13 @@ const downloadStatus = ref('notDownload');
 
 const grid = reactive({
   cards: [],
-})
-onMounted(() => reSet())
+});
+const breadItems = ref([]);
+
+const router = useRoute();
+
+onMounted(() => reSet());
+
 //const reSet = () => grid.cards = store.items;
 const reSet = async () => {
     downloadStatus.value = 'isDownloading';
@@ -57,7 +64,17 @@ const reSet = async () => {
 };
 
 watch(route, () => fetchNewsByPage(route.params.page));
+watch(route, () => fetchNewsCategory(route.params.category));
+
+const fetchNewsCategory = async (category) => {
+    console.log('fetchNewsCategory')
+    console.log(category)
+    await getProducts();
+}
 const fetchNewsByPage = async (page) => {
+    if (!page) {
+        return;
+    }
     currentPage.value = page;
    // show.value  = false;
     await getProducts();
@@ -66,11 +83,32 @@ const fetchNewsByPage = async (page) => {
 
 const getProducts = async () => {
     currentPage.value++;
-    const response = await axios.get(`/api/products?page=${currentPage.value}&limit=${limit}`);
+    let categoryId = Number(route.params.category);
+    console.log(categoryId)
+    const response = await axios.get(`/api/products`,
+        {
+            params:
+                {
+                    page: currentPage.value,
+                    limit: limit,
+                    categoryId: categoryId,
+                }
+        }
+    );
 
     for (const product of response.data.products) {
         grid.cards.push(product);
     }
+
+    let category_name = '';
+    if (response.data.category) {
+        category_name = response.data.category.name;
+    }
+
+    breadItems.value = store.getBreadCrumbs(router, {
+        '#category_name#': category_name,
+    });
+
     //grid.cards = response.data.products;
     totalCount.value = response.data.count ?? 0;
 };

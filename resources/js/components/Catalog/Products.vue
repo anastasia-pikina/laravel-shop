@@ -5,7 +5,6 @@ import List from "./Products/List.vue";
 
 <template>
     <div>
-        <BreadCrumbs />
         <List />
     </div>
 </template>

@@ -1,6 +1,9 @@
 <script setup>
 
 import BreadCrumbs from "../Layers/BreadCrumbs.vue";
+import {useRoute} from "vue-router";
+
+const router = useRoute();
 </script>
 
 <template>
@@ -10,5 +13,4 @@ import BreadCrumbs from "../Layers/BreadCrumbs.vue";
 </template>
 
 <style scoped>
-
 </style>

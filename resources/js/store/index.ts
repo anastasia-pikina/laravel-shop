@@ -1,5 +1,7 @@
 import {defineStore} from "pinia";
 import {State} from '@/components/types'
+import axios from "axios";
+import { useRoute } from 'vue-router';
 
 export const useMainStore = defineStore("main", {
     state: (): State => ({
@@ -178,6 +180,40 @@ export const useMainStore = defineStore("main", {
             }
 
             return five;
+        },
+
+        getBreadCrumbs(router, replacement = {}) {
+            let result = [];
+            for (const routerItem of router.matched) {
+                for (const routerItemBreadcrumb of routerItem.meta.breadcrumb) {
+                    if (!routerItemBreadcrumb.name) {
+                        continue;
+                    }
+                    console.log(routerItemBreadcrumb.name)
+                    const name = this.replaceString(routerItemBreadcrumb.name, replacement);
+
+                    let routerData = {label: name};
+
+                    let link = '';
+                    if (routerItemBreadcrumb.link) {
+                        link = this.replaceString(routerItemBreadcrumb.link, replacement);
+                        routerData.route = link;
+                    } else if (routerItem.path) {
+                        routerData.route = routerItem.path;
+                    }
+                    result.push(routerData);
+                }
+            }
+            delete(result[result.length - 1].route);
+
+            return result;
+        },
+
+        replaceString(string, replacement) {
+            for (const replace in replacement) {
+                string = string.replace(replace, replacement[replace])
+            }
+            return string;
         }
     },
 });

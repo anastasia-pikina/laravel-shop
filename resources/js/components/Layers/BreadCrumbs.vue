@@ -1,6 +1,5 @@
 <template>
-    {{breadcrumbs}}
-    <Breadcrumb :home="home" :model="items">
+    <Breadcrumb :home="home" :model="breadItems">
         <template #item="{ item, props }">
             <router-link v-if="item.route" v-slot="{ href, navigate }" :to="item.route" custom>
                 <a :href="href" v-bind="props.action" @click="navigate">
@@ -17,7 +16,7 @@
 
 <script setup lang="ts">
 import {useRoute} from "vue-router";
-import {reactive, onMounted, computed, ref} from 'vue';
+import {reactive, onMounted, computed, ref, defineProps} from 'vue';
 import Breadcrumb from 'primevue/breadcrumb';
 
 const home = ref({
@@ -30,45 +29,80 @@ const home = ref({
 //     { label: 'InputText', route: '/inputtext' }
 // ]);
 
+const props = defineProps({
+    breadItems: []
+})
+
 const items = ref([]);
 
 const router = useRoute();
 
-const breadcrumbs = computed(() => {
-    console.log(router)
-    const linkCount = router.matched.length;
-    let i = 0;
-    for (const t of router.matched) {
-        i++;
-        let routerData = {label: t.meta.breadcrumb.label};
-        if (i < linkCount) {
-            routerData.route = t.path;
-        }
-        items.value.push(routerData);
-    }
-    // let activedRoutes = [];
-    // router.beforeEach((to, from, next) => {
-    //    // activedRoutes = [];
-    //     to.matched.forEach((record) => { activedRoutes.push(record) })
-    //     next();
-    // });
-
-    //return activedRoutes;
-    // const matchedRoutes = route.matched;
-    // console.log(matchedRoutes);
-    // return matchedRoutes.map((routeItem) => ({
-    //     label: routeItem.meta.breadcrumb || routeItem.name,
-    //     to: getRoutePath(route, routeItem),
-    // }));
-    // const routes = route.matched.map(r => {
-    //     return {
-    //         text: r.name || 'Unnamed',
-    //         route: {name: r.name}
-    //     };
-    // });
-    // console.log(routes)
-    // return routes;
-});
+// const breadcrumbs = computed(() => {
+//     console.log(router.matched)
+//     items.value = [];
+//     const linkCount = router.matched.length;
+//     let i = 0;
+//     for (const t of router.matched) {
+//         console.log(t)
+//         for(const r of t.meta.breadcrumb) {
+//             if (!r.name) {
+//                 continue;
+//             }
+//
+//             let routerData = {label: r.name};
+//
+//             if (r.link) {
+//                 routerData.route = r.link;
+//             } else if (t.path) {
+//                 routerData.route = t.path;
+//             }
+//             items.value.push(routerData);
+//         }
+//         // if (!t.meta.breadcrumb.name) {
+//         //     continue;
+//         // }
+//         //
+//         // i++;
+//         // let routerData = {label: t.meta.breadcrumb.name};
+//         // if (t.meta.breadcrumb.link) {
+//         //     routerData.route = t.meta.breadcrumb.link;
+//         // }
+//         // items.value.push(routerData);
+//     }
+//     delete(items.value[items.value.length - 1].route);
+//     console.log(items.value)
+//
+//     // const routes = router.matched.map(r => {
+//     //     return {
+//     //         text: r.name || 'Unnamed',
+//     //         route: { name: r.name }
+//     //     };
+//     // });
+//     //
+//     // console.log(routes)
+//     // let activedRoutes = [];
+//     // router.beforeEach((to, from, next) => {
+//     //    // activedRoutes = [];
+//     //     to.matched.forEach((record) => { activedRoutes.push(record) })
+//     //     next();
+//     // });
+//
+//     //return activedRoutes;
+//     // const matchedRoutes = route.matched;
+//     // console.log(matchedRoutes);
+//     // return matchedRoutes.map((routeItem) => ({
+//     //     label: routeItem.meta.breadcrumb || routeItem.name,
+//     //     to: getRoutePath(route, routeItem),
+//     // }));
+//     // const routes = route.matched.map(r => {
+//     //     return {
+//     //         text: r.name || 'Unnamed',
+//     //         route: {name: r.name}
+//     //     };
+//     // });
+//     // console.log(routes)
+//     // return routes;
+// });
 
 const getRoutePath = (route, routeItem) => {
     const matchedSegments = route.matched.slice(0, route.matched.indexOf(routeItem) + 1);

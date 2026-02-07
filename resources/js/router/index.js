@@ -10,7 +10,9 @@ const routes = [
         path: '/',
         component: Home,
         meta: {
-            breadcrumb: 'Home' // Can be just a string
+            breadcrumb: [
+                { name: 'Home' }
+            ]
         },
     },
     {
@@ -21,48 +23,50 @@ const routes = [
                 path: 'page/:page?',
                 component: Products,
                 name: 'ProductsPage',
+                meta: {
+                    breadcrumb: [
+                        { name: 'Каталог' }
+                    ]
+                }
             },
             {
                 path: ':category?',
                 component: Products,
                 name: 'Products',
                 meta: {
-                    // Can be an object
-                    breadcrumb: {
-                        label: 'Каталог',
-                    },
-                },
+                    breadcrumb: [
+                        { name: '#category_name#' }
+                    ]
+                }
             },
             {
                 path: ':category/:id/',
                 component: Product,
                 name: 'Product',
                 meta: {
-                    // Can be an object
-                    breadcrumb: {
-                        label: 'Товар',
-                    },
-                },
+                    breadcrumb: [
+                        { name: '#category_name#', link: '/products/#category_link#/' },
+                        { name: '#product_name#' }
+                    ]
+                }
             },
         ],
+        name: 'CatalogRouter',
         meta: {
             // Can be an object
-            breadcrumb: {
-                label: 'Каталог',
-            },
+            breadcrumb: [
+                {name: 'Каталог'},
+            ],
         },
-        name: 'CatalogRouter',
     },
     {
         path: '/contact',
         component: Contact,
         meta: {
-            // Can be an object
-            breadcrumb: {
-                label: 'Контакты',
-                link: '/contact' // custom link
-            },
-        }
+            breadcrumb: [
+                { name: 'Контакты' }
+            ]
+        },
     },
 ];
 
