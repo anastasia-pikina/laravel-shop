@@ -19,3 +19,10 @@
 .fade-leave-to {
     opacity: 0;
 }
+
+.content-fade
+{
+    transition: 200ms all ease;
+    opacity: .7;
+    pointer-events: none;
+}

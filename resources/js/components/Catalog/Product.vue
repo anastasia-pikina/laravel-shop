@@ -1,5 +1,5 @@
 <template >
-    <BreadCrumbs :breadItems="breadItems" />
+    <BreadCrumbs :items="breadItems" />
     <div class="container py-5" style="padding-top:70px;">
         <!-- TODO dont allow accessing of the route to this page '/info' except if there is info to display -->
         <Box :item="item.details" :reviews="reviews" :isLoading="downloadStatus === 'isDownloading'" />
@@ -64,7 +64,6 @@ onMounted(async () => {
         '#category_link#': item.details.category_id,
         '#category_name#': item.details.category.name,
     });
-    console.log(breadItems.value)
 })
 
 const sliceItems = computed(() => {

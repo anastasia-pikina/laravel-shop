@@ -1,16 +1,16 @@
 <template>
-    <BreadCrumbs :breadItems="breadItems" />
-  <div class="container mb-4">
-    <div class="mx-3">
-      <DropDownFilters @sort-item="sortItems" />
-    </div>
-      <div v-if="downloadStatus === 'isDownloading'" class="text-center">
+    <BreadCrumbs :items="breadItems" />
+    <div class="container mb-4">
+        <div class="mx-3">
+            <DropDownFilters @sort-item="sortItems" />
+        </div>
+        <div v-if="downloadStatus === 'isDownloading'" class="text-center">
           <CSpinner class="m-5" color="secondary" visually-hidden-label=""/>
-      </div>
-      <template v-else>
+        </div>
+        <template v-else>
           <div v-if="grid.cards.length !== 0" class="main-grid d-flex p-3">
               <FilterBar />
-              <div class="col-11 col-md-12 col-lg-8 mx-auto" style="margin-left:25px !important">
+              <div class="col-11 col-md-12 col-lg-8 mx-auto product-list">
                   <transition name="fade">
                       <Card :cards="grid.cards" />
                   </transition>
@@ -20,8 +20,8 @@
           <Notification v-else class="my-5 py-5">
               <h4>Sorry, we can't find any product with this features</h4>
           </Notification>
-      </template>
-  </div>
+        </template>
+    </div>
 </template>
 
 <script setup>
@@ -32,7 +32,6 @@ import FilterBar from './FilterBar.vue';
 import Card from './Card.vue';
 import MoreButton from './MoreButton.vue';
 import Notification from '../../Notification.vue';
-import Pagination from '../../Pagination/Pagination.vue';
 import axios from 'axios';
 import { useRoute } from 'vue-router';
 import { CSpinner } from '@coreui/bootstrap-vue';
@@ -54,7 +53,12 @@ const breadItems = ref([]);
 
 const router = useRoute();
 
-onMounted(() => reSet());
+onMounted( () => {
+    console.log('onMounted')
+    grid.cards = [];
+    reSet();
+});
+//onMounted(() => reSet());
 
 //const reSet = () => grid.cards = store.items;
 const reSet = async () => {
@@ -67,8 +71,8 @@ watch(route, () => fetchNewsByPage(route.params.page));
 watch(route, () => fetchNewsCategory(route.params.category));
 
 const fetchNewsCategory = async (category) => {
-    console.log('fetchNewsCategory')
-    console.log(category)
+    grid.cards = [];
+    currentPage.value = 0;
     await getProducts();
 }
 const fetchNewsByPage = async (page) => {
@@ -84,7 +88,6 @@ const fetchNewsByPage = async (page) => {
 const getProducts = async () => {
     currentPage.value++;
     let categoryId = Number(route.params.category);
-    console.log(categoryId)
     const response = await axios.get(`/api/products`,
         {
             params:
@@ -143,3 +146,9 @@ const pageCount = computed(() => {
 });
 
 </script>
+
+<style scoped>
+    .product-list {
+        margin-left:25px;
+    }
+</style>

@@ -4,7 +4,6 @@ import Rating from "primevue/rating";
 import Card from "primevue/card";
 import Button from "primevue/button";
 import {defineProps, onMounted, ref, computed} from "vue";
-import axios from "axios";
 import {useMainStore} from "../../../store/index.js";
 import ProgressSpinner from 'primevue/progressspinner';
 
@@ -27,17 +26,20 @@ const getReviews = async () => {
     try {
         currentPage.value++;
         downloadStatus.value = store.requestStatus.inProcess;
+        const response = await store.sendRequest('/api/reviews/', 'get', {
+            params:
+                {
+                    page: currentPage.value,
+                    limit: limit,
+                    product_id: props.productId
+                }
+        });
 
-        const response = await axios.get(`/api/reviews`,
-            {
-                params:
-                    {
-                        page: currentPage.value,
-                        limit: limit,
-                        product_id: props.productId
-                    }
-            }
-        );
+        if (!response) {
+            downloadStatus.value = store.requestStatus.isFailed;
+
+            return;
+        }
 
         downloadStatus.value = store.requestStatus.isSuccess;
         const dateOptions = {
@@ -51,13 +53,13 @@ const getReviews = async () => {
             timeZone: "Europe/Moscow",
         };
 
-        for (const review of response.data.reviews) {
+        for (const review of response.reviews) {
             const date = new Date(review.created_at);
             review.created_at = new Intl.DateTimeFormat("ru", dateOptions).format(date);
             reviews.value.push(review);
         }
 
-        totalCount.value = response.data.count ?? 0;
+        totalCount.value = response.count ?? 0;
     } catch (error) {
         console.error(error);
     }

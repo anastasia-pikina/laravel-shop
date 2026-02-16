@@ -12,7 +12,7 @@ class ProductReviewsController extends Controller
 
     public function index(Request $request): array
     {
-        sleep(5);
+     //   sleep(5);
         $page = $request->get('page', 1);
         $limit = $request->get('limit', 10);
         $productsCount = DB::table('product_reviews')
@@ -48,6 +48,7 @@ class ProductReviewsController extends Controller
 
     public function update(Request $request)
     {
+        sleep(5);
         return ProductReviews::create($request->all());
     }
 }

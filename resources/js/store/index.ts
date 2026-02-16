@@ -7,7 +7,9 @@ export const useMainStore = defineStore("main", {
     state: (): State => ({
         requestStatus: {
             inProcess: 'inProcess',
-            isSuccess: 'isSuccess'
+            notInProcess: 'notInProcess',
+            isSuccess: 'isSuccess',
+            isFailed: 'isFailed',
         },
         productInfo: {},
         cartItems: [],
@@ -182,6 +184,32 @@ export const useMainStore = defineStore("main", {
             return five;
         },
 
+        async sendRequest(url, method = 'get', data = null) {
+            if (!url) {
+                return null;
+            }
+
+            try {
+                let response = null;
+                switch (method) {
+                    case 'put':
+                        response = await axios.put(url, data);
+                        break;
+
+                    case 'post':
+                        response = await axios.post(url, data);
+                        break;
+
+                    default:
+                        response = await axios.get(url, data);
+                }
+
+                return response.data;
+            } catch (error) {
+                return null;
+            }
+        },
+
         getBreadCrumbs(router, replacement = {}) {
             let result = [];
             for (const routerItem of router.matched) {
@@ -189,8 +217,12 @@ export const useMainStore = defineStore("main", {
                     if (!routerItemBreadcrumb.name) {
                         continue;
                     }
-                    console.log(routerItemBreadcrumb.name)
+
                     const name = this.replaceString(routerItemBreadcrumb.name, replacement);
+
+                    if (!name) {
+                        continue;
+                    }
 
                     let routerData = {label: name};
 
@@ -198,12 +230,22 @@ export const useMainStore = defineStore("main", {
                     if (routerItemBreadcrumb.link) {
                         link = this.replaceString(routerItemBreadcrumb.link, replacement);
                         routerData.route = link;
-                    } else if (routerItem.path) {
-                        routerData.route = routerItem.path;
+                        result.push(routerData);
+
+                        continue;
                     }
+
+                    if (routerItem.path) {
+                        routerData.route = routerItem.path;
+                        result.push(routerData);
+
+                        continue;
+                    }
+
                     result.push(routerData);
                 }
             }
+
             delete(result[result.length - 1].route);
 
             return result;

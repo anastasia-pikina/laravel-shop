@@ -63,6 +63,7 @@ class ProductController extends Controller
             ->take($limit);
             //->get();
 
+      //  print $categoryId;
         if ($categoryId > 0) {
             $prodRequest->where('category_id', $categoryId);
         }

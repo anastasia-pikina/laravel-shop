@@ -5,31 +5,20 @@ import {Form, FormField} from "@primevue/forms";
 import Button from "primevue/button";
 import Dialog from "primevue/dialog";
 import Textarea from "primevue/textarea";
+import Message from "primevue/message";
 import {computed, defineProps, ref} from "vue";
-import { useToast } from 'primevue/usetoast';
-import axios from "axios";
+import {useMainStore} from "../../../store/index.js";
 
 const props = defineProps({
     productId: Number
 });
 
+const store = useMainStore();
+
 const visible = ref(false);
 const rating = ref(0);
 const review = ref('');
-const sendStatus = ref('notInProcess');
-
-// const onFormSubmit = () => {
-//     const data = {
-//         productId: props.productId,
-//         rating: rating,
-//         review: review,
-//     };
-//
-//     console.log(data)
-// };
-
-//const toast = useToast();
-
+const sendStatus = ref(store.requestStatus.notInProcess);
 const initialValues = ref({
     review: ''
 });
@@ -38,11 +27,11 @@ const resolver = ({ values }) => {
     const errors = { review: [] };
 
     if (!values.review) {
-        errors.review.push({ type: 'required', message: 'Username is required.' });
+        errors.review.push({ type: 'required', message: 'Отзыв не может быть пустым.' });
     }
 
     if (values.review?.length < 3) {
-        errors.review.push({ type: 'minimum', review: 'Username must be at least 3 characters long.' });
+        errors.review.push({ type: 'minimum', message: 'Отзыв должен быть не менее 3 символов.' });
     }
 
     return {
@@ -52,9 +41,9 @@ const resolver = ({ values }) => {
 };
 
 const onFormSubmit = async ({ valid }) => {
-    // if (valid) {
-    //     toast.add({ severity: 'success', summary: 'Form is submitted.', life: 3000 });
-    // }
+    if (!valid) {
+        return;
+    }
 
     const data = {
         product_id: props.productId,
@@ -62,28 +51,36 @@ const onFormSubmit = async ({ valid }) => {
         text: review.value,
     };
 
-    console.log(data)
-    sendStatus.value = 'inProcess';
-    const response = await axios.put('/api/reviews/' + props.productId, data);
-    sendStatus.value = 'inProcessSuccess';
-    console.log(data)
+    sendStatus.value = store.requestStatus.inProcess;
+    const addResult = await store.sendRequest('/api/reviews/' + props.productId, 'put', data);
+    if (addResult === null) {
+        sendStatus.value = store.requestStatus.isFailed;
+
+        return;
+    }
+
+    sendStatus.value = store.requestStatus.isSuccess;
 }
 
-const inProcess = computed(() => {
-    return sendStatus.value === 'inProcess';
+const isRequestInProcess = computed(() => {
+    return sendStatus.value === store.requestStatus.inProcess;
 });
 
-const inNotProcessSuccess = computed(() => {
-    return sendStatus.value !== 'inProcessSuccess';
+const isRequestResultSuccess = computed(() => {
+    return sendStatus.value === store.requestStatus.isSuccess;
 });
 
-const inProcessSuccess = computed(() => {
-    return sendStatus.value === 'inProcessSuccess';
+const isRequestResultFailed = computed(() => {
+    return sendStatus.value === store.requestStatus.isFailed;
+});
+
+const hasRequestResult = computed(() => {
+    return [store.requestStatus.isSuccess, store.requestStatus.isFailed].includes(sendStatus.value);
 });
 
 const addNewReview = () => {
     visible.value = true;
-    sendStatus.value = 'notInProcess';
+    sendStatus.value = store.requestStatus.notInProcess;
     review.value = '';
     rating.value = 0;
 }
@@ -94,18 +91,23 @@ const addNewReview = () => {
     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
         <Button label="Оставить отзыв" @click="addNewReview"/>
         <Dialog v-model:visible="visible" modal header="Отзыв" :style="{ width: '25rem' }">
-            <Form v-if="inNotProcessSuccess" v-slot="$form" :initialValues :resolver @submit="onFormSubmit"
+            <Form v-if="!hasRequestResult" v-slot="$form" :initialValues :resolver @submit="onFormSubmit"
                   class="flex flex-col gap-4 w-full sm:w-56">
-                <Rating v-model="rating" />
-                <FormField v-slot="$field" name="details" class="flex flex-col gap-1">
-                    <Textarea placeholder="" v-model="review" name="review"/>
-                    <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">
-                        {{ $field.error?.message }}
-                    </Message>
-                </FormField>
-                <Button :loading="inProcess" type="submit" severity="secondary" label="Отправить"/>
+                <div :class="{'content-fade': isRequestInProcess}">
+                    <Rating v-model="rating" />
+                    <FormField v-slot="$field" name="review" class="flex flex-col gap-1 pt-2">
+                        <Textarea placeholder="" v-model="review" name="review" fluid/>
+                        <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">
+                            {{ $field.error?.message }}
+                        </Message>
+                    </FormField>
+                </div>
+                <Button :loading="isRequestInProcess" type="submit" severity="secondary" label="Отправить"/>
             </Form>
-            <div v-if="inProcessSuccess">Отзыв отправлен. Он будет опубликован после подтверждения.</div>
+            <template v-else>
+                <div v-if="isRequestResultSuccess">Отзыв отправлен. Он будет опубликован после подтверждения.</div>
+                <div v-if="isRequestResultFailed">Ошибка при добавлении отзыва. Пожалуйста, попробуйте позже.</div>
+            </template>
         </Dialog>
     </div>
 </template>
