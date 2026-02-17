@@ -20,6 +20,7 @@
     @endif
 </head>
 <body>
-<div id="app"></div>
+sdfgh
+<div id="app_shop"></div>
 </body>
 </html>

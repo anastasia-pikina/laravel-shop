@@ -4,6 +4,11 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminController;
 
+Route::view('/login', 'dashboard');
+Route::view('/reset', 'dashboard');
+Route::view('/register', 'dashboard');
+Route::view('/dashboard', 'dashboard');
+
 Route::get('/{any}', function () {
     return view('welcome');
 })->where('any', '.*');
@@ -24,3 +29,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 });
 
 require __DIR__.'/auth.php';
+
+Auth::routes();
+
+///Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');

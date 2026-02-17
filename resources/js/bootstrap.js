@@ -80,4 +80,4 @@ app.use(PrimeVue, {
         preset: Noir
     }
 });
-app.mount('#app');
+app.mount('#app_shop');

@@ -48,7 +48,7 @@ class ProductReviewsController extends Controller
 
     public function update(Request $request)
     {
-        sleep(5);
+        sleep(3);
         return ProductReviews::create($request->all());
     }
 }

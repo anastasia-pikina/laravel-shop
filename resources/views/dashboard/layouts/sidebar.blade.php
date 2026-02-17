@@ -1,0 +1,1 @@
+<ul class="nav flex-column"> <li class="nav-item"> <a class="nav-link text-white" href="{{ route('dashboard.home') }}">Главная</a> </li> </ul>

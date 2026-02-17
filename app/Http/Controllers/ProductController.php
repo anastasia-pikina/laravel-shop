@@ -8,14 +8,52 @@ use Illuminate\Support\Facades\DB;
 
 class ProductController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return Product::all();
-    }
+        //  sleep(10);
+        $page = $request->get('page', 1);
+        $limit = $request->get('limit', 10);
+        $categoryId = (int) $request->get('categoryId', 0);
+        $productsCount = DB::table('products')->count();
+        $products = DB::table('products')
+            ->orderBy('id', 'desc')
+            ->where('category_id', $categoryId)
+            ->skip(($page - 1) * $limit)
+            ->take($limit)
+            ->get();
+//        foreach ($products as $product) {
+//            print $product->category;
+//        }
+        // Product::where('id', 3);
+        $prodRequest = Product::query()
+            //->where('category_id', $categoryId)
+            ->orderBy('id', 'desc')
+            ->skip(($page - 1) * $limit)
+            ->take($limit);
+        //->get();
 
-    public function store(Request $request)
-    {
-        return Product::create($request->all());
+        //  print $categoryId;
+        if ($categoryId > 0) {
+            $prodRequest->where('category_id', $categoryId);
+        }
+        $prod = $prodRequest->get();
+
+        $productList = [];
+        $category = '';
+        foreach ($prod as $prodItem) {
+            $prodItem['category'] = $prodItem->category;
+            if ($categoryId > 0) {
+                $category = $prodItem->category;
+            }
+            $productList[] = $prodItem;
+        }
+//        print_r($prod);
+//        print_r($products);
+        return [
+            'products' => $productList,
+            'count' => $productsCount,
+            'category' => $category,
+        ];
     }
 
     public function show(Product $product)
@@ -38,52 +76,5 @@ class ProductController extends Controller
     {
         $product->delete();
         return response()->noContent();
-    }
-
-    public function getNews(Request $request) {
-      //  sleep(10);
-        $page = $request->get('page', 1);
-        $limit = $request->get('limit', 10);
-        $categoryId = (int) $request->get('categoryId', 0);
-        $productsCount = DB::table('products')->count();
-        $products = DB::table('products')
-            ->orderBy('id', 'desc')
-            ->where('category_id', $categoryId)
-            ->skip(($page - 1) * $limit)
-            ->take($limit)
-            ->get();
-//        foreach ($products as $product) {
-//            print $product->category;
-//        }
-       // Product::where('id', 3);
-        $prodRequest = Product::query()
-            //->where('category_id', $categoryId)
-            ->orderBy('id', 'desc')
-            ->skip(($page - 1) * $limit)
-            ->take($limit);
-            //->get();
-
-      //  print $categoryId;
-        if ($categoryId > 0) {
-            $prodRequest->where('category_id', $categoryId);
-        }
-        $prod = $prodRequest->get();
-
-        $productList = [];
-        $category = '';
-        foreach ($prod as $prodItem) {
-           $prodItem['category'] = $prodItem->category;
-           if ($categoryId > 0) {
-               $category = $prodItem->category;
-           }
-            $productList[] = $prodItem;
-        }
-//        print_r($prod);
-//        print_r($products);
-        return [
-            'products' => $productList,
-            'count' => $productsCount,
-            'category' => $category,
-        ];
     }
 }
