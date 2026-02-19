@@ -39,7 +39,7 @@ import BreadCrumbs from "../../Layers/BreadCrumbs.vue";
 
 const currentPage = ref(0);
 const totalCount = ref(0);
-const limit = 2;
+const limit = 3;
 const route = useRoute();
 
 const store = useMainStore();

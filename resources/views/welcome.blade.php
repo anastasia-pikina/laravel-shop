@@ -20,7 +20,6 @@
     @endif
 </head>
 <body>
-sdfgh
 <div id="app_shop"></div>
 </body>
 </html>

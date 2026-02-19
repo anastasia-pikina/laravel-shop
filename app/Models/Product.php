@@ -12,6 +12,7 @@ class Product extends Model
         'name',
         'description',
         'price',
+        'category_id',
     ];
 
     public function category(): BelongsTo
@@ -21,6 +22,6 @@ class Product extends Model
 
     public function reviews(): HasMany
     {
-        return $this->hasMany(ProductReviews::class);
+        return $this->hasMany(ProductReview::class);
     }
 }

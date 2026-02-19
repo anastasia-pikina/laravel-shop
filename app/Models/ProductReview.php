@@ -4,8 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class ProductReviews extends Model
+class ProductReview extends Model
 {
+    protected $table = 'product_review';
     protected $fillable = [
         'product_id',
         'text',

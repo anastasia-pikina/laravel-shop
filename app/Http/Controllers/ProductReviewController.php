@@ -4,10 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use Illuminate\Http\Request;
-use App\Models\ProductReviews;
+use App\Models\ProductReview;
 use Illuminate\Support\Facades\DB;
 
-class ProductReviewsController extends Controller
+class ProductReviewController extends Controller
 {
 
     public function index(Request $request): array
@@ -15,11 +15,11 @@ class ProductReviewsController extends Controller
      //   sleep(5);
         $page = $request->get('page', 1);
         $limit = $request->get('limit', 10);
-        $productsCount = DB::table('product_reviews')
+        $productsCount = DB::table('product_review')
             ->where('product_id', $request->get('product_id'))
             ->where('is_confirmed', true)
             ->count();
-        $prod = ProductReviews::query()
+        $prod = ProductReview::query()
             ->where('product_id', $request->get('product_id'))
             ->where('is_confirmed', true)
             ->orderBy('created_at', 'desc')
@@ -49,6 +49,6 @@ class ProductReviewsController extends Controller
     public function update(Request $request)
     {
         sleep(3);
-        return ProductReviews::create($request->all());
+        return ProductReview::create($request->all());
     }
 }
