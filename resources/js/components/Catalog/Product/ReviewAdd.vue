@@ -52,7 +52,7 @@ const onFormSubmit = async ({ valid }) => {
     };
 
     sendStatus.value = store.requestStatus.inProcess;
-    const addResult = await store.sendRequest('/api/reviews/create', 'put', data);
+    const addResult = await store.sendRequest('/shop/products/reviews/create', 'put', data);
     if (addResult === null) {
         sendStatus.value = store.requestStatus.isFailed;
 

@@ -26,7 +26,7 @@ const getReviews = async () => {
     try {
         currentPage.value++;
         downloadStatus.value = store.requestStatus.inProcess;
-        const response = await store.sendRequest('/api/reviews/', 'get', {
+        const response = await store.sendRequest('/shop/products/reviews', 'get', {
             params:
                 {
                     page: currentPage.value,
@@ -94,7 +94,7 @@ const isEmptyReviews = computed(() => {
     <div v-if="isEmptyReviews">К данному товару пока нет отзывов.</div>
     <div class="product-review" v-for="(review, code) in reviews" :key="code">
         <Card class="mb-3">
-            <template #title>Simple Card</template>
+            <template #title>{{ review.user.name }}</template>
             <template #subtitle>{{ review.created_at }}</template>
             <template #content>
                 <Rating v-model="review.rating" readonly/>

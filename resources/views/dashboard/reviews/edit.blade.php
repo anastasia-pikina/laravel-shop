@@ -1,34 +1,21 @@
 @extends('dashboard.layouts.master')
 @section('content')
     <h1>Редактировать запись</h1>
-    <form action="{{ route('products.update', $product) }}" method="POST">
+    <form action="{{ route('reviews.update', $review) }}" method="POST">
         @csrf
         @method('PUT')
         <div class="mb-3">
-            <label for="title" class="form-label">Название</label>
-            <input type="text" class="form-control" id="name" name="name" value="{{old('name', $product->name)}}">
-            @error('name')
+            <label for="text" class="form-label">Отзыв</label>
+            <input type="text" class="form-control" id="text" name="text" value="{{old('text', $review->text)}}">
+            @error('text')
             <p class="text-danger">{{ $message }}</p>
             @enderror
         </div>
         <div class="mb-3">
-            <label for="content" class="form-label">Контент</label>
-            <textarea class="form-control" id="description" name="description" rows="5">{{old('description', $product->description)}}</textarea>
-            @error('description')
-            <p class="text-danger">{{ $message }}</p>
-            @enderror
-        </div>
-        <div class="mb-3">
-            <label for="title" class="form-label">Цена</label>
-            <input type="text" class="form-control" id="price" name="price" value="{{old('price', $product->price)}}">
-            @error('price')
-            <p class="text-danger">{{ $message }}</p>
-            @enderror
-        </div>
-        <div class="mb-3">
-            <label for="title" class="form-label">Категория</label>
-            <input type="text" class="form-control" id="category_id" name="category_id" value="{{old('category_id', $product->category_id)}}">
-            @error('category_id')
+            <label for="is_confirmed" class="form-label">Подтвержден</label>
+            <input type="hidden" name="is_confirmed" value="0">
+            <input type="checkbox" name="is_confirmed" class="form-check-input" value="1" @if($review->is_confirmed==1) checked @endif />
+            @error('is_confirmed')
             <p class="text-danger">{{ $message }}</p>
             @enderror
         </div>

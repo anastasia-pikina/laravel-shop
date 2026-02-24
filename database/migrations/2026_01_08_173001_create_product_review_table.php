@@ -19,6 +19,7 @@ return new class extends Migration
             $table->integer('rating')->default(0);
             $table->foreign('product_id')->references('id')->on('products');
             $table->boolean('is_confirmed')->default(false);
+            $table->integer('user_id')->references('id')->on('users');
         });
     }
 
@@ -27,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-       // Schema::dropIfExists('product_review');
+        Schema::dropIfExists('product_review');
     }
 };

@@ -22,10 +22,9 @@
                 <td>{{ $review->text }}</td>
                 <td>{{ $review->product_id }}</td>
                 <td>{{ $review->rating }}</td>
-                <td>{{ $review->is_confirmed }}</td>
+                <td> @if($review->is_confirmed==1) да @else нет @endif</td>
                 <td>
                     <a href="{{ route('reviews.edit', $review) }}" class="btn btn-warning btn-sm">Редактировать</a>
-                    <a href="{{ route('reviews.confirm', $review) }}" class="btn btn-warning btn-sm">Опубликовать</a>
                     <form action="{{ route('reviews.destroy', $review) }}" method="POST" class="d-inline-block">
                         @csrf @method('DELETE')
                         <button class="btn btn-danger btn-sm" onclick="return confirm('Вы уверены?')">Удалить</button>

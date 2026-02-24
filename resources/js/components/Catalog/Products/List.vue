@@ -88,7 +88,7 @@ const fetchNewsByPage = async (page) => {
 const getProducts = async () => {
     currentPage.value++;
     let categoryId = Number(route.params.category);
-    const response = await axios.get(`/api/products`,
+    const response = await axios.get(`/shop/products`,
         {
             params:
                 {

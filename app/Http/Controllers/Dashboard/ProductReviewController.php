@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Dashboard;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\ProductReview;
-use App\Http\Requests\ProductRequest;
+use App\Http\Requests\ProductReviewRequest;
 
 class ProductReviewController extends Controller
 {
@@ -29,7 +29,7 @@ class ProductReviewController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(ProductRequest $request)
+    public function store(ProductReviewRequest $request)
     {
         ProductReview::create($request->validated());
 
@@ -55,9 +55,10 @@ class ProductReviewController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(ProductRequest $request, ProductReview $review)
+    public function update(ProductReviewRequest $request, ProductReview $review)
     {
-
+//        print_r($request->validated());
+//        die;
         $review->update($request->validated());
 
         return redirect()->route('reviews.index')->with('global', 'Запись успешно обновлена.');

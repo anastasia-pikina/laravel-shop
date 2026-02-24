@@ -6,6 +6,7 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use App\Models\ProductReview;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class ProductReviewController extends Controller
 {
@@ -26,7 +27,7 @@ class ProductReviewController extends Controller
             ->skip(($page - 1) * $limit)->take($limit)->get();
         $productList = [];
         foreach ($prod as $prodItem) {
-            $prodItem['category'] = $prodItem->category;
+            $prodItem['user'] = $prodItem->user;
             $productList[] = $prodItem;
         }
 //        print_r($prod);
@@ -48,7 +49,9 @@ class ProductReviewController extends Controller
 
     public function update(Request $request)
     {
-        sleep(3);
-        return ProductReview::create($request->all());
+       // sleep(3);
+        $fieldList = $request->all();
+        $fieldList['user_id'] = Auth::id();;
+        return ProductReview::create($fieldList);
     }
 }

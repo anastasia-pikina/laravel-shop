@@ -10,9 +10,9 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-Route::apiResource('products', ProductController::class);
+//Route::apiResource('products', ProductController::class);
 //Route::get('/products', [ProductController::class, 'getNews']);
-Route::apiResource('/reviews', ProductReviewController::class);
+//Route::resource('/reviews', ProductReviewController::class);
 //Route::get('/reviews', [ProductReviewsController::class, 'getProductReviews']);
 //Route::get('/reviews/count/{product_id}', [ProductReviewsController::class, 'getProductReviewCount']);
 Route::resource('products_admin', ProductReviewsAdminController::class);
