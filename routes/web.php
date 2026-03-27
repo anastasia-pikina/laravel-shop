@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Dashboard\ProductController;
 use App\Http\Controllers\Dashboard\ProductReviewController;
+use App\Http\Controllers\Dashboard\ProductCategoryController;
 
 Route::view('/login', 'dashboard');
 Route::view('/reset', 'dashboard');
@@ -18,6 +19,7 @@ Route::get('/dashboard', function () {
 
 Route::resource('/dashboard/products', ProductController::class);
 Route::resource('/dashboard/reviews', ProductReviewController::class);
+Route::resource('/dashboard/categories', ProductCategoryController::class);
 //Route::get('/profile', [ProfileController::class, 'edit']);
 //Route::post('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
 //Route::put('/dashboard/reviews/confirm', [ProductReviewController::class, 'confirm']);

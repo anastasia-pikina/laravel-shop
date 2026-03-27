@@ -2,7 +2,6 @@
 @section('content')
     <div class="d-flex justify-content-between align-items-center">
         <h1>Отзывы о товарах</h1>
-        <a href="{{ route('reviews.create') }}" class="btn btn-primary">Создать отзыв</a>
     </div>
     <table class="table mt-4">
         <thead>

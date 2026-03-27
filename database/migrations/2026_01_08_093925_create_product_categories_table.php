@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('code')->unique();
-            $table->unsignedBigInteger('parent_category_id')->default(0);
+            $table->unsignedBigInteger('parent_category_id')->nullable()->constrained('product_categories');
             $table->timestamps();
         });
     }
