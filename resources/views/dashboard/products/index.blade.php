@@ -9,7 +9,9 @@
         <tr>
             <th>#</th>
             <th>Заголовок</th>
+            <th>Изображение</th>
             <th>Цена</th>
+            <th>Категория</th>
             <th>Действия</th>
         </tr>
         </thead>
@@ -18,7 +20,13 @@
             <tr>
                 <td>{{ $product->id }}</td>
                 <td>{{ $product->name }}</td>
+                <td>
+                    @if($product->image)
+                    <img class="pt-1 pb-1" src="{{ $product->image }}" alt="{{ $product->name }}">
+                    @endif
+                </td>
                 <td>{{ $product->price }}</td>
+                <td>{{ $product->category->name }}</td>
                 <td>
                     <a href="{{ route('products.edit', $product) }}" class="btn btn-warning btn-sm">Редактировать</a>
                     <form action="{{ route('products.destroy', $product) }}" method="POST" class="d-inline-block">

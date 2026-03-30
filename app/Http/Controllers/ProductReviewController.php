@@ -13,7 +13,6 @@ class ProductReviewController extends Controller
 
     public function index(Request $request): array
     {
-     //   sleep(5);
         $page = $request->get('page', 1);
         $limit = $request->get('limit', 10);
         $productsCount = DB::table('product_review')
@@ -30,28 +29,18 @@ class ProductReviewController extends Controller
             $prodItem['user'] = $prodItem->user;
             $productList[] = $prodItem;
         }
-//        print_r($prod);
-//        print_r($products);
+
         return [
             'reviews' => $productList,
             'count' => $productsCount,
         ];
-       // sleep(10);
-        //return ProductReviews::where('product_id', $productId)->get()->toArray();
-    }
-
-    public function getProductReviewCount($product_id)
-    {
-        print $product_id  . '111';
-        die;
-
     }
 
     public function update(Request $request)
     {
-       // sleep(3);
         $fieldList = $request->all();
-        $fieldList['user_id'] = Auth::id();;
+        $fieldList['user_id'] = Auth::id();
+
         return ProductReview::create($fieldList);
     }
 }

@@ -19,7 +19,12 @@
         </div>
         <div class="mb-3">
             <label for="code" class="form-label">Родительская категория</label>
-            <input type="text" class="form-control" id="parent_category_id" name="parent_category_id" value="{{old('parent_category_id')}}">
+            <select class="form-select" name="parent_category_id">
+                <option value="">не выбрано</option>
+                @foreach ($categories as $categoryItem)
+                    <option value="{{ $categoryItem->id }}"@if($categoryItem->id === (int) old('parent_category_id')) selected @endif>{{ $categoryItem->name }}</option>
+                @endforeach
+            </select>
             @error('parent_category_id')
             <p class="text-danger">{{ $message }}</p>
             @enderror

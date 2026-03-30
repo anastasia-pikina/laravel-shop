@@ -17,9 +17,9 @@ return new class extends Migration
             $table->unsignedBigInteger('product_id');
             $table->timestamps();
             $table->integer('rating')->default(0);
-            $table->foreign('product_id')->references('id')->on('products');
+            $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
             $table->boolean('is_confirmed')->default(false);
-            $table->integer('user_id')->references('id')->on('users');
+            $table->integer('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 

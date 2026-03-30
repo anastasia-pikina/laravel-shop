@@ -26,6 +26,7 @@ class ProductRequest extends FormRequest
             'price' => 'required|numeric',
             'description' => 'nullable',
             'category_id' => 'required',
+            'image' => 'image|mimes:jpeg,png,jpg,gif,composer require intervention/image,svg'
         ];
     }
 
@@ -34,6 +35,8 @@ class ProductRequest extends FormRequest
             'name.required' => 'Поле "Название" обязательно для заполнения.',
             'price.required' => 'Поле "Цена" обязательно для заполнения.',
             'price.numeric' => 'Поле "Цена" должно быть числом.',
+            'category_id' => 'Поле "Категория" обязательно для заполнения.',
+            'image' => 'Изображение может быть только следующих форматов: jpeg, png, jpg, gif, webp, svg.',
         ];
     }
 }

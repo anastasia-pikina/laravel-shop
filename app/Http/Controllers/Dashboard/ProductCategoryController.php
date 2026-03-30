@@ -13,7 +13,7 @@ class ProductCategoryController extends Controller
      */
     public function index()
     {
-        $categories = ProductCategory::latest()->paginate(10);
+        $categories = ProductCategory::latest('id')->paginate(10);
         return view('dashboard.categories.index', compact('categories'));
     }
 
@@ -22,7 +22,8 @@ class ProductCategoryController extends Controller
      */
     public function create()
     {
-        return view('dashboard.categories.create');
+        $categories = ProductCategory::query()->select('id', 'name')->get();
+        return view('dashboard.categories.create')->with('categories', $categories);
     }
 
     /**
@@ -48,8 +49,10 @@ class ProductCategoryController extends Controller
      */
     public function edit(ProductCategory $category)
     {
-        $cats = ProductCategory::query()->select('id', 'name')->whereNot('id', $category->id)->get();
-        return view('dashboard.categories.edit')->with('category', $category)->with('cats', $cats);
+        $categories = ProductCategory::query()->select('id', 'name')->whereNot('id', $category->id)->get();
+        return view('dashboard.categories.edit')
+            ->with('category', $category)
+            ->with('categories', $categories);
     }
 
     /**

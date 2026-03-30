@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
@@ -42,11 +43,16 @@ class ProductController extends Controller
         $category = '';
         foreach ($prod as $prodItem) {
             $prodItem['category'] = $prodItem->category;
+            if ($prodItem->image) {
+                $prodItem->image = Storage::disk('local')->url('product/source/' . $prodItem->image);
+            }
+
             if ($categoryId > 0) {
                 $category = $prodItem->category;
             }
             $productList[] = $prodItem;
         }
+
 //        print_r($prod);
 //        print_r($products);
         return [
@@ -59,6 +65,11 @@ class ProductController extends Controller
     public function show(Product $product)
     {
         $product['category'] = $product->category;
+
+        if ($product->image) {
+            $product->image = Storage::disk('local')->url('product/source/' . $product->image);
+        }
+
         return [
             'product' => $product,
             'reviews_count' => $product->reviews()->where('is_confirmed', 1)->get()->count(),
