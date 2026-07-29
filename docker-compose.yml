@@ -34,8 +34,10 @@ services:
         volumes:
             - .docker/db/data:/var/lib/mysql
             - .docker/logs:/var/log/mysql
-            - .docker/db/my.cnf:/etc/mysql/conf.d/my.cnf
             - .docker/db/sql:/docker-entrypoint-initdb.d
+        configs:
+          - source: my_cnf
+            target: /etc/mysql/conf.d/my.cnf
         environment:
             MYSQL_ROOT_PASSWORD: root
             MYSQL_DATABASE: refactorian
@@ -131,5 +133,9 @@ services:
     #     environment:
     #         - PGADMIN_DEFAULT_EMAIL=admin@admin.com
     #         - PGADMIN_DEFAULT_PASSWORD=password
-    #     depends_on:
-    #         - db
+#     depends_on:
+#         - db
+
+configs:
+  my_cnf:
+    file: ./.docker/db/my.cnf

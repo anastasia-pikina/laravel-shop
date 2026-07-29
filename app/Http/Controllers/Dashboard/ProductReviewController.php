@@ -72,4 +72,10 @@ class ProductReviewController extends Controller
         $review->delete();
         return redirect()->route('reviews.index')->with('global', 'Запись успешно удалена.');
     }
+
+    public function confirm(ProductReview $review)
+    {
+        $review->update(['is_confirmed' => !$review->is_confirmed]);
+        return redirect()->route('reviews.index');
+    }
 }

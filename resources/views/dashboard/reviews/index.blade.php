@@ -24,6 +24,12 @@
                 <td> @if($review->is_confirmed==1) да @else нет @endif</td>
                 <td>
                     <a href="{{ route('reviews.edit', $review) }}" class="btn btn-warning btn-sm">Редактировать</a>
+                    <form action="{{ route('reviews.confirm', $review) }}" method="POST" class="d-inline-block">
+                        @csrf @method('PUT')
+                        <button class="btn btn-sm {{ $review->is_confirmed ? 'btn-secondary' : 'btn-success' }}">
+                            {{ $review->is_confirmed ? 'Отменить одобрение' : 'Одобрить' }}
+                        </button>
+                    </form>
                     <form action="{{ route('reviews.destroy', $review) }}" method="POST" class="d-inline-block">
                         @csrf @method('DELETE')
                         <button class="btn btn-danger btn-sm" onclick="return confirm('Вы уверены?')">Удалить</button>

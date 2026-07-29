@@ -51,8 +51,6 @@ const grid = reactive({
 });
 const breadItems = ref([]);
 
-const router = useRoute();
-
 onMounted( () => {
     console.log('onMounted')
     grid.cards = [];
@@ -87,14 +85,17 @@ const fetchNewsByPage = async (page) => {
 
 const getProducts = async () => {
     currentPage.value++;
-    let categoryId = Number(route.params.category);
+    let categoryPath = route.params.category || '';
+    let categorySegments = categoryPath ? categoryPath.split('/').filter(Boolean) : [];
+    let categoryCode = categorySegments.length ? categorySegments[categorySegments.length - 1] : '';
+
     const response = await axios.get(`/shop/products`,
         {
             params:
                 {
                     page: currentPage.value,
                     limit: limit,
-                    categoryId: categoryId,
+                    categoryCode: categoryCode,
                 }
         }
     );
@@ -103,16 +104,14 @@ const getProducts = async () => {
         grid.cards.push(product);
     }
 
-    let category_name = '';
-    if (response.data.category) {
-        category_name = response.data.category.name;
+    let items = [{ name: 'Каталог', link: '/products' }];
+    let accumPath = '';
+    for (const seg of (response.data.category_path || [])) {
+        accumPath = accumPath ? accumPath + '/' + seg.code : seg.code;
+        items.push({ name: seg.name, link: '/products/' + accumPath + '/' });
     }
+    breadItems.value = store.getBreadCrumbs(items);
 
-    breadItems.value = store.getBreadCrumbs(router, {
-        '#category_name#': category_name,
-    });
-
-    //grid.cards = response.data.products;
     totalCount.value = response.data.count ?? 0;
 };
 

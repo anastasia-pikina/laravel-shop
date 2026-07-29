@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Http\Requests\ProductRequest;
 use Illuminate\Support\Facades\Storage;
+use App\Storage\ImageSaver;
 
 class ProductController extends Controller
 {
@@ -15,24 +16,20 @@ class ProductController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $products = Product::latest()->paginate(10);
-        foreach ($products as $product) {
-            if ($product->image) {
-                $product->image = Storage::disk('local')->url('product/source/' . $product->image);
-            }
-        }
+        $products = Product::latest()->paginate($request->integer('per_page', config('dashboard.per_page')));
         return view('dashboard.products.index', compact('products'));
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Request $request)
     {
         $categories = ProductCategory::query()->select('id', 'name')->get();
-        return view('dashboard.products.create')->with('categories', $categories);
+        $selectedCategoryId = $request->integer('category_id') ?: null;
+        return view('dashboard.products.create', compact('categories', 'selectedCategoryId'));
     }
 
     /**
@@ -45,6 +42,7 @@ class ProductController extends Controller
         if ($image) {
             $path = $image->store(self::STORAGE_PATH, 'public');
             $base = basename($path);
+           // (new ImageSaver())->imageSaver($path);
         }
 
         $data = $request->all();
@@ -74,9 +72,6 @@ class ProductController extends Controller
 
         $result = view('dashboard.products.edit', compact('product'))
             ->with('categories', $categories);
-        if ($product->image) {
-            $result->with('image', Storage::disk('local')->url('product/source/' . $product->image));
-        }
 
         return $result;
     }
@@ -98,7 +93,10 @@ class ProductController extends Controller
         $old = $product->image;
         if ((isset($data['image']) && $old) || $isRemoveImage) {
             Storage::disk('public')->delete(self::STORAGE_PATH . $old);
-            $data['image'] = null;
+
+            if ($isRemoveImage) {
+                $data['image'] = null;
+            }
         }
 
         $product->update($data);

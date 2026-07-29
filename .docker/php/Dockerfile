@@ -19,8 +19,8 @@ RUN apt-get install -y libicu-dev \
   && docker-php-ext-install intl
 
 # gd
-RUN apt-get install -y libfreetype6-dev libjpeg62-turbo-dev libpng-dev && \
-docker-php-ext-configure gd --with-freetype=/usr/include/ --with-jpeg=/usr/include/ && \
+RUN apt-get install -y libfreetype6-dev libjpeg62-turbo-dev libpng-dev libwebp-dev && \
+docker-php-ext-configure gd --with-freetype=/usr/include/ --with-jpeg=/usr/include/ --with-webp=/usr/include/ && \
 docker-php-ext-install gd
 
 # redis

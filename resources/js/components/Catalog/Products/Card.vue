@@ -2,8 +2,12 @@
   <div class="row justify-content-center text-center">
     <div v-for="item in cards" class="col-10 col-xl-4 col-lg-4 col-md-4 col-sm-6 col-xs-4 pb-3" :key="item.id">
       <div class="card">
-        <img class="card-img-top" :src="item.image" alt="Card-image-cap" title="Card-image-cap"
-          loading="lazy">
+        <div class="card-img-wrapper">
+          <img v-if="item.image" class="card-img-top" :src="item.image" alt="Card-image-cap" title="Card-image-cap" loading="lazy">
+          <div v-else class="card-img-top placeholder-img">
+            <span>Нет изображения</span>
+          </div>
+        </div>
         <div class="overlay">
           <button type="button" class="btn btn-light btn-lg" @click="store.inCart(item)">Добавить +</button>
           <router-link :to="getProductUrl(item)">
@@ -12,7 +16,7 @@
         </div>
         <div class="card-body">
           <h5 class="card-title">{{ item.name }}</h5>
-          <p class="card-text">${{ item.price }}</p>
+          <p class="card-text">{{ item.price }} ₽</p>
         </div>
       </div>
     </div>
@@ -26,18 +30,15 @@ import {useMainStore} from '../../../store';
 const store = useMainStore();
 
 const getProductUrl = (product) => {
-    let result = {
-        name: 'Product',
-        params: {
-            id: product.id,
-        }
-    };
-
+    let path = '/products/';
     if (product.category && product.category.code) {
-        result.params.category = product.category.code;
+        if (product.category.parent) {
+            path += product.category.parent.code + '/';
+        }
+        path += product.category.code + '/';
     }
-
-    return result;
+    path += product.id + '/';
+    return path;
 }
 
 
@@ -53,6 +54,22 @@ defineProps<{
   transition: 300ms;
   position: relative;
   overflow: hidden;
+
+  .card-img-wrapper {
+    position: relative;
+    width: 100%;
+    min-height: 200px;
+  }
+
+  .placeholder-img {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+    background-color: #f0f0f0;
+    color: #999;
+    font-size: 14px;
+  }
 
   img {
     z-index: 1;

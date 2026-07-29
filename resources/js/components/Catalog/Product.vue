@@ -17,7 +17,7 @@
 <script setup lang="ts">
 
 import { useRoute } from 'vue-router';
-import {reactive, onMounted, computed, ref} from 'vue';
+import {reactive, onMounted, computed, ref, watch} from 'vue';
 import { Product } from '../types';
 import BreadCrumbs from "../Layers/BreadCrumbs.vue";
 import Box from "./Product/Box.vue";
@@ -47,32 +47,40 @@ const reviews = ref({
 
 const breadItems = ref([]);
 
-const router = useRoute();
+const updateBreadcrumbs = () => {
+    let items = [{ name: 'Каталог', link: '/products' }];
+    let cat = item.details.category;
+    if (cat) {
+        let parentPath = '';
+        if (cat.parent) {
+            parentPath = cat.parent.code + '/';
+            items.push({ name: cat.parent.name, link: '/products/' + parentPath });
+        }
+        items.push({ name: cat.name, link: '/products/' + parentPath + cat.code + '/' });
+    }
+    items.push({ name: item.details.name });
+    breadItems.value = store.getBreadCrumbs(items);
+};
 
-onMounted(async () => {
+const fetchProduct = async (id) => {
     breadItems.value = [];
     downloadStatus.value = 'isDownloading';
-    let itemId = Number(route.params.id)
-    const response = await axios.get('/shop/products/' + itemId);
-    downloadStatus.value = 'isDownload'
+    const response = await axios.get('/shop/products/' + id);
+    downloadStatus.value = 'isDownload';
     item.details = response.data.product;
+    item.relatedItems = response.data.recommended || [];
     reviews.value.count = response.data.reviews_count;
     reviews.value.average_rating = response.data.reviews_average_rating;
+    updateBreadcrumbs();
+};
 
-    breadItems.value = store.getBreadCrumbs(router, {
-        '#product_name#': item.details.name,
-        '#category_link#': item.details.category_id,
-        '#category_name#': item.details.category.name,
-    });
-})
+onMounted(() => fetchProduct(Number(route.params.id)));
 
-const sliceItems = computed(() => {
-    for (let i = 0; i < 3; i++) {
-        const randomIndex = Math.floor(Math.random() * store.items.length)
-        item.relatedItems.push(store.items[randomIndex])
-    }
-    return item.relatedItems
-})
+watch(() => route.params.id, (newId) => {
+    if (newId) fetchProduct(Number(newId));
+});
+
+const sliceItems = computed(() => item.relatedItems)
 </script>
 
 <style scoped>

@@ -10,6 +10,9 @@ use App\Http\Controllers\Dashboard\ProductCategoryController;
 Route::view('/login', 'dashboard');
 Route::view('/reset', 'dashboard');
 Route::view('/register', 'dashboard');
+Route::resource('/dashboard/products', ProductController::class);
+Route::resource('/dashboard/reviews', ProductReviewController::class);
+Route::resource('/dashboard/categories', ProductCategoryController::class);
 //Route::view('/dashboard', 'dashboard');
 Route::resource('/shop/products/reviews', App\Http\Controllers\ProductReviewController::class);
 Route::resource('/shop/products', App\Http\Controllers\ProductController::class);
@@ -17,18 +20,17 @@ Route::get('/dashboard', function () {
     return view('dashboard.app');
 })->middleware(['auth', 'verified'])->name('dashboard.home');
 
-Route::resource('/dashboard/products', ProductController::class);
-Route::resource('/dashboard/reviews', ProductReviewController::class);
-Route::resource('/dashboard/categories', ProductCategoryController::class);
 //Route::get('/profile', [ProfileController::class, 'edit']);
 //Route::post('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
-//Route::put('/dashboard/reviews/confirm', [ProductReviewController::class, 'confirm']);
+Route::put('/dashboard/reviews/{review}/confirm', [ProductReviewController::class, 'confirm'])->name('reviews.confirm');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+Route::get('/image', [App\Http\Controllers\ImageController::class, 'crop'])->name('image.crop');
 
 Route::get('/{any}', function () {
     return view('welcome');

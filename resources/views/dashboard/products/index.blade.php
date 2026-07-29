@@ -22,7 +22,7 @@
                 <td>{{ $product->name }}</td>
                 <td>
                     @if($product->image)
-                    <img class="pt-1 pb-1" src="{{ $product->image }}" alt="{{ $product->name }}">
+                    <img class="pt-1 pb-1" src="{{ route('image.crop', ['path' => 'product/source/' . $product->image, 'w' => 200, 'h' => 200]) }}" alt="{{ $product->name }}">
                     @endif
                 </td>
                 <td>{{ $product->price }}</td>

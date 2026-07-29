@@ -2,15 +2,15 @@
 import FeedBack from './Forms/FeedBack.vue';
 import BreadCrumbs from "./Layers/BreadCrumbs.vue";
 import {onMounted, ref} from "vue";
-import {useRoute} from "vue-router";
 import {useMainStore} from "../store/index.js";
 
 const breadItems = ref([]);
-const router = useRoute();
 const store = useMainStore();
 
 onMounted( () => {
-    breadItems.value = store.getBreadCrumbs(router);
+    breadItems.value = store.getBreadCrumbs([
+        { name: 'Контакты' },
+    ]);
 });
 </script>
 <template>

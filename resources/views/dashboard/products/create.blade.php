@@ -1,7 +1,7 @@
 @extends('dashboard.layouts.master')
 @section('content')
     <h1>Создать запись</h1>
-    <form action="{{ route('products.store') }}" method="POST">
+    <form action="{{ route('products.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
         <div class="mb-3">
             <label for="title" class="form-label">Название</label>
@@ -12,13 +12,10 @@
         </div>
         <div class="mb-3">
             <label for="title" class="form-label">Изображение</label>
-            <input type="file" name="image" id="image">
+            <input type="file" name="image" id="image" class="form-control">
             @error('image')
             <p class="text-danger">{{ $message }}</p>
             @enderror
-            @isset($image)
-                <img src="{{ $image }}" alt="{{ $product->name }}">
-            @endisset
         </div>
         <div class="mb-3">
             <label for="content" class="form-label">Описание</label>
@@ -37,9 +34,9 @@
         <div class="mb-3">
             <label for="title" class="form-label">Категория</label>
             <select class="form-select" name="category_id">
-                <option value="">не выбрано{{old('category_id')}}</option>
+                <option value="">не выбрано</option>
                 @foreach ($categories as $category)
-                    <option value="{{ $category->id }}"@if($category->id === (int) old('category_id')) selected @endif>{{ $category->name }}</option>
+                    <option value="{{ $category->id }}"@if((int) old('category_id', $selectedCategoryId ?? 0) === $category->id) selected @endif>{{ $category->name }}</option>
                 @endforeach
             </select>
             @error('category_id')

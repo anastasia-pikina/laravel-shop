@@ -9,11 +9,6 @@ const routes = [
     {
         path: '/',
         component: Home,
-        meta: {
-            breadcrumb: [
-                { name: 'Home' }
-            ]
-        },
     },
     {
         path: '/products',
@@ -23,50 +18,22 @@ const routes = [
                 path: 'page/:page?',
                 component: Products,
                 name: 'ProductsPage',
-                meta: {
-                    breadcrumb: [
-                        { name: 'Каталог' }
-                    ]
-                }
             },
             {
-                path: ':category?',
-                component: Products,
-                name: 'Products',
-                meta: {
-                    breadcrumb: [
-                        { name: '#category_name#' }
-                    ]
-                }
-            },
-            {
-                path: ':category/:id/',
+                path: ':category(.*)/:id(\\d+)/',
                 component: Product,
                 name: 'Product',
-                meta: {
-                    breadcrumb: [
-                        { name: '#category_name#', link: '/products/#category_link#/' },
-                        { name: '#product_name#' }
-                    ]
-                }
+            },
+            {
+                path: ':category(.*)?',
+                component: Products,
+                name: 'Products',
             },
         ],
-        name: 'CatalogRouter',
-        meta: {
-            // Can be an object
-            breadcrumb: [
-                {name: 'Каталог'},
-            ],
-        },
     },
     {
         path: '/contact',
         component: Contact,
-        meta: {
-            breadcrumb: [
-                { name: 'Контакты' }
-            ]
-        },
     },
 ];
 

@@ -210,52 +210,18 @@ export const useMainStore = defineStore("main", {
             }
         },
 
-        getBreadCrumbs(router, replacement = {}) {
-            let result = [];
-            for (const routerItem of router.matched) {
-                for (const routerItemBreadcrumb of routerItem.meta.breadcrumb) {
-                    if (!routerItemBreadcrumb.name) {
-                        continue;
-                    }
-
-                    const name = this.replaceString(routerItemBreadcrumb.name, replacement);
-
-                    if (!name) {
-                        continue;
-                    }
-
-                    let routerData = {label: name};
-
-                    let link = '';
-                    if (routerItemBreadcrumb.link) {
-                        link = this.replaceString(routerItemBreadcrumb.link, replacement);
-                        routerData.route = link;
-                        result.push(routerData);
-
-                        continue;
-                    }
-
-                    if (routerItem.path) {
-                        routerData.route = routerItem.path;
-                        result.push(routerData);
-
-                        continue;
-                    }
-
-                    result.push(routerData);
+        getBreadCrumbs(items) {
+            let result = items.map(item => {
+                let bread = { label: item.name };
+                if (item.link) {
+                    bread.route = item.link;
                 }
+                return bread;
+            });
+            if (result.length > 1) {
+                delete result[result.length - 1].route;
             }
-
-            delete(result[result.length - 1].route);
-
             return result;
         },
-
-        replaceString(string, replacement) {
-            for (const replace in replacement) {
-                string = string.replace(replace, replacement[replace])
-            }
-            return string;
-        }
     },
 });
