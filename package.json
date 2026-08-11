@@ -32,7 +32,7 @@
         "pinia": "^3.0.4",
         "primeicons": "^7.0.0",
         "primevue": "^4.5.4",
-        "vue": "^3.5.26",
+        "vue": "^3.5.31",
         "vue-3-breadcrumbs": "^2.0.0",
         "vue-bootstrap-slider": "^2.1.8"
     }
