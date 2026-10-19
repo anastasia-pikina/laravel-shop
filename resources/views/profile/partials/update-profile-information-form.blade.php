@@ -1,5 +1,4 @@
 <section>
-    4444444444444444444
     <header>
         <h2 class="text-lg font-medium text-gray-900">
             {{ __('Profile Information') }}
@@ -15,7 +14,6 @@
     </form>
 
     <form method="post" action="{{ route('profile.update') }}" class="mt-6 space-y-6">
-        4444
         @csrf
         @method('patch')
 

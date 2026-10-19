@@ -3,26 +3,12 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminController;
-use App\Http\Controllers\Dashboard\ProductController;
-use App\Http\Controllers\Dashboard\ProductReviewController;
-use App\Http\Controllers\Dashboard\ProductCategoryController;
 
-Route::view('/login', 'dashboard');
-Route::view('/reset', 'dashboard');
-Route::view('/register', 'dashboard');
-Route::resource('/dashboard/products', ProductController::class);
-Route::resource('/dashboard/reviews', ProductReviewController::class);
-Route::resource('/dashboard/categories', ProductCategoryController::class);
-//Route::view('/dashboard', 'dashboard');
 Route::resource('/shop/products/reviews', App\Http\Controllers\ProductReviewController::class);
 Route::resource('/shop/products', App\Http\Controllers\ProductController::class);
-Route::get('/dashboard', function () {
-    return view('dashboard.app');
-})->middleware(['auth', 'verified'])->name('dashboard.home');
 
 //Route::get('/profile', [ProfileController::class, 'edit']);
 //Route::post('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
-Route::put('/dashboard/reviews/{review}/confirm', [ProductReviewController::class, 'confirm'])->name('reviews.confirm');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -32,22 +18,6 @@ Route::middleware('auth')->group(function () {
 
 Route::get('/image', [App\Http\Controllers\ImageController::class, 'crop'])->name('image.crop');
 
-Route::get('/{any}', function () {
-    return view('welcome');
-})->where('any', '.*');
-//
-//Route::get('/dashboard', function () {
-//    return view('dashboard');
-//})->middleware(['auth', 'verified'])->name('dashboard');
-//
-//
-//Route::middleware(['auth', 'role:admin'])->group(function () {
-//    Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
-//    Route::resource('/admin/users', AdminController::class);
-//});
-
 require __DIR__.'/auth.php';
-
-Auth::routes();
 
 ///Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');

@@ -13,10 +13,13 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
         then: function () {
             Route::middleware(['web', 'auth'])
-                ->namespace('App\Http\Controllers\Dashboard')
                 ->prefix('dashboard')
                 ->group(base_path('routes/dashboard.php')
                 );
+
+            Route::get('/{any}', function () {
+                return view('welcome');
+            })->where('any', '.*')->middleware('web');
         }
     )
     ->withMiddleware(function (Middleware $middleware) {
@@ -27,5 +30,4 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
     })->create();

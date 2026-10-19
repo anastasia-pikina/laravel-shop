@@ -101,7 +101,7 @@ class ProductController extends Controller
 
         $product->update($data);
 
-        return redirect()->route('products.index')->with('global', 'Запись успешно обновлена.');
+        return redirect()->route('dashboard.products.index')->with('global', 'Запись успешно обновлена.');
     }
 
     /**

@@ -1,6 +1,6 @@
-<ul class="nav flex-column">
-    <li class="nav-item"> <a class="nav-link text-white" href="{{ route('dashboard.home') }}">Главная</a> </li>
-    <li class="nav-item"> <a class="nav-link text-white" href="{{ route('products.index') }}">Товары</a> </li>
-    <li class="nav-item"> <a class="nav-link text-white" href="{{ route('reviews.index') }}">Отзывы о товарах</a> </li>
-    <li class="nav-item"> <a class="nav-link text-white" href="{{ route('categories.index') }}">Категории</a> </li>
+<ul class="space-y-1">
+    <li> <a class="block px-3 py-2 rounded-md text-white hover:bg-gray-700" href="{{ route('dashboard') }}">Главная</a> </li>
+    <li> <a class="block px-3 py-2 rounded-md text-white hover:bg-gray-700" href="{{ route('dashboard.products.index') }}">Товары</a> </li>
+    <li> <a class="block px-3 py-2 rounded-md text-white hover:bg-gray-700" href="{{ route('dashboard.reviews.index') }}">Отзывы о товарах</a> </li>
+    <li> <a class="block px-3 py-2 rounded-md text-white hover:bg-gray-700" href="{{ route('dashboard.categories.index') }}">Категории</a> </li>
 </ul>

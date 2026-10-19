@@ -1,5 +1,3 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <div class="container-fluid">
-        <span class="navbar-brand">Dashboard</span>
-    </div>
-</nav>
+<div class="bg-white shadow px-6 py-4">
+    <span class="text-lg font-semibold text-gray-800">Dashboard</span>
+</div>
