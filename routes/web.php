@@ -2,13 +2,9 @@
 
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AdminController;
 
 Route::resource('/shop/products/reviews', App\Http\Controllers\ProductReviewController::class);
 Route::resource('/shop/products', App\Http\Controllers\ProductController::class);
-
-//Route::get('/profile', [ProfileController::class, 'edit']);
-//Route::post('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -17,7 +13,3 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::get('/image', [App\Http\Controllers\ImageController::class, 'crop'])->name('image.crop');
-
-require __DIR__.'/auth.php';
-
-///Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');

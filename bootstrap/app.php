@@ -17,6 +17,9 @@ return Application::configure(basePath: dirname(__DIR__))
                 ->group(base_path('routes/dashboard.php')
                 );
 
+            Route::middleware(['web'])
+                ->group(base_path('routes/auth.php'));
+
             Route::get('/{any}', function () {
                 return view('welcome');
             })->where('any', '.*')->middleware('web');
