@@ -52,7 +52,9 @@
                                   style="height: 35px; width: 155px; margin-bottom: 35px;">
                         <CPlaceholder component="div" size="lg" style="height: 100%; width: 100%;"/>
                     </CPlaceholder>
-                    <button v-else class="add-to-cart-button disabled" @click="addtoCart(item)">В корзину</button>
+                    <button v-else class="add-to-cart-button" :disabled="item.available_quantity === 0" @click="addtoCart(item)">
+                        {{ item.available_quantity === 0 ? 'Нет в наличии' : 'В корзину' }}
+                    </button>
                 </div>
             </div>
         </div>
@@ -79,7 +81,7 @@ const props = defineProps<{
 
 const quantity = ref(1)
 
-const incrememnt = () => quantity.value < 9 ? quantity.value++ : 0
+const incrememnt = () => quantity.value < Math.min(9, props.item.available_quantity ?? 9) ? quantity.value++ : 0
 const decrememnt = () => quantity.value > 1 ? quantity.value-- : 0
 
 function addtoCart(item: object) {

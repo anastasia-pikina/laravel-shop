@@ -9,7 +9,9 @@
           </div>
         </div>
         <div class="overlay">
-          <button type="button" class="btn btn-light btn-lg" @click="store.inCart(item)">Добавить +</button>
+          <button type="button" class="btn btn-light btn-lg" :disabled="item.available_quantity === 0" @click="store.inCart(item)">
+            {{ item.available_quantity === 0 ? 'Нет в наличии' : 'Добавить +' }}
+          </button>
           <router-link :to="getProductUrl(item)">
             <button type="button" @click="store.addtoInfo(item.id as number)" class="btn btn-light btn-lg">Подробнее</button>
           </router-link>

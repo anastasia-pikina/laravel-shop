@@ -3,6 +3,7 @@ export interface Product {
     img?: string,
     title?: string,
     price?: number,
+    available_quantity?: number,
     color?: string,
     type?: string
   }

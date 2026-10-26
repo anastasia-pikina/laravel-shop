@@ -15,7 +15,8 @@ class ProductController extends Controller
         $limit = $request->get('limit', 10);
         $categoryCode = $request->get('categoryCode', '');
 
-        $prodRequest = Product::with('category.parent')
+        $prodRequest = Product::with('category.parent', 'inventory')
+            ->where('is_active', true)
             ->orderBy('id', 'desc');
 
         $category = null;
@@ -54,6 +55,8 @@ class ProductController extends Controller
         $productList = [];
         foreach ($prod as $prodItem) {
             $prodItem['category'] = $prodItem->category;
+            $prodItem['available_quantity'] = max(0, ($prodItem->inventory?->on_hand ?? 0) - ($prodItem->inventory?->reserved ?? 0));
+            $prodItem->unsetRelation('inventory');
             if ($prodItem->image) {
                 $prodItem->image = Storage::disk('local')->url('product/source/' . $prodItem->image);
             }
@@ -70,14 +73,18 @@ class ProductController extends Controller
 
     public function show(Product $product)
     {
-        $product->load('category.parent');
+        abort_unless($product->is_active, 404);
+        $product->load('category.parent', 'inventory');
         $product['category'] = $product->category;
+        $product['available_quantity'] = max(0, ($product->inventory?->on_hand ?? 0) - ($product->inventory?->reserved ?? 0));
+        $product->unsetRelation('inventory');
 
         if ($product->image) {
             $product->image = Storage::disk('local')->url('product/source/' . $product->image);
         }
 
         $recommended = Product::with('category.parent')
+            ->where('is_active', true)
             ->where('category_id', $product->category_id)
             ->where('id', '!=', $product->id)
             ->inRandomOrder()

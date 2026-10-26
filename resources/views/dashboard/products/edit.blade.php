@@ -53,6 +53,22 @@
             <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
             @enderror
         </div>
+        <div>
+            <input type="hidden" name="is_active" value="0">
+            <label><input type="checkbox" name="is_active" value="1" @checked(old('is_active', $product->is_active))> Активен в каталоге</label>
+        </div>
         <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700">Обновить</button>
     </form>
+    <div class="max-w-lg mt-8 rounded bg-white p-4 shadow">
+        <h2 class="text-xl font-semibold">Остаток</h2>
+        <p class="mt-2">Артикул: {{ $product->sku }}</p>
+        <p>На складе: {{ $product->inventory?->on_hand ?? 0 }}, резерв: {{ $product->inventory?->reserved ?? 0 }}</p>
+        <form action="{{ route('dashboard.inventory.adjust', $product) }}" method="POST" class="mt-4 flex gap-2">
+            @csrf
+            <input name="delta" type="number" required placeholder="Изменение (+/-)" class="rounded border-gray-300">
+            <button class="rounded bg-indigo-600 px-4 py-2 text-white">Применить</button>
+        </form>
+        @error('quantity') <p class="text-red-600">{{ $message }}</p> @enderror
+        @error('delta') <p class="text-red-600">{{ $message }}</p> @enderror
+    </div>
 @endsection

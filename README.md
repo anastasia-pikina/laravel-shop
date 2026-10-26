@@ -1,6 +1,7 @@
 <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
 # Laravel Docker Starter Kit
+
 - Laravel v12.x
 - PHP v8.4.x
 - MySQL v8.1.x (default)
@@ -15,6 +16,15 @@
 - Vite v5.x
 - Rector v1.x
 - Redis v7.2.x
+
+## Shop orders setup
+
+- Run `php artisan migrate` in the PHP 8.4 container. Existing products receive SKUs and zero stock.
+- Grant an existing user dashboard access with `php artisan shop:grant-admin user@example.com`, then set stock on each product's edit page and add pickup points in the dashboard.
+- Set `COURIER_DELIVERY_AMOUNT` in `.env` before accepting courier orders. Pickup defaults to free. Prices are RUB decimal strings.
+- Run Laravel's scheduler every minute (`php artisan schedule:run` via cron, or `php artisan schedule:work` in development) to release expired unpaid reservations.
+- `POST /shop/orders` accepts customer contacts, `items` (`product_id`, `quantity`), `payment_method`, and `delivery`; send a UUID in the `Idempotency-Key` header. The server calculates all prices. `GET /shop/pickup-points` lists active pickup points.
+- Online checkout remains disabled until a payment provider adapter verifies callbacks and calls `OrderService::recordOnlinePayment`; then set `SHOP_ONLINE_PAYMENT_ENABLED=true`. Pending refunds require the same provider integration.
 
 # Requirements
 - Stable version of [Docker](https://docs.docker.com/engine/install/)
