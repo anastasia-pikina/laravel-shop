@@ -82,8 +82,8 @@
                     </td>
                     <td class="px-4 py-3 whitespace-nowrap">{{ $product->price }}</td>
                     <td class="px-4 py-3 whitespace-nowrap">
-                        <a href="{{ route('products.edit', $product) }}" class="bg-yellow-500 text-white px-3 py-1 rounded-md text-xs hover:bg-yellow-600 mr-2">Редактировать</a>
-                        <form action="{{ route('products.destroy', $product) }}" method="POST" class="inline-block">
+                        <a href="{{ route('dashboard.products.edit', $product) }}" class="bg-yellow-500 text-white px-3 py-1 rounded-md text-xs hover:bg-yellow-600 mr-2">Редактировать</a>
+                        <form action="{{ route('dashboard.products.destroy', $product) }}" method="POST" class="inline-block">
                             @csrf @method('DELETE')
                             <button class="bg-red-600 text-white px-3 py-1 rounded-md text-xs hover:bg-red-700" onclick="return confirm('Вы уверены?')">Удалить</button>
                         </form>

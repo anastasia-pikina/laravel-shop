@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Dashboard;
 
+use App\Enums\DeliveryStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Services\OrderService;
@@ -22,8 +23,15 @@ class OrderController extends Controller
 
     public function delivery(Request $request, Order $order, OrderService $orders)
     {
-        $data = $request->validate(['status' => ['required', Rule::in(['preparing', 'ready_for_pickup', 'in_transit', 'delivered', 'failed'])]]);
-        $orders->updateDelivery($order, $data['status']);
+
+        $data = $request->validate([
+            'status' => [
+                'required',
+                Rule::enum(DeliveryStatus::class)
+            ]
+        ]);
+
+        $orders->updateDelivery($order, DeliveryStatus::from($data['status']));
 
         return back()->with('global', 'Статус доставки обновлен.');
     }

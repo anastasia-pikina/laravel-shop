@@ -33,7 +33,7 @@ class ProductReviewController extends Controller
     {
         ProductReview::create($request->validated());
 
-        return redirect()->route('reviews.index')->with('global', 'Запись успешно создана.');
+        return redirect()->route('dashboard.reviews.index')->with('global', 'Запись успешно создана.');
     }
 
     /**
@@ -57,11 +57,9 @@ class ProductReviewController extends Controller
      */
     public function update(ProductReviewRequest $request, ProductReview $review)
     {
-//        print_r($request->validated());
-//        die;
         $review->update($request->validated());
 
-        return redirect()->route('reviews.index')->with('global', 'Запись успешно обновлена.');
+        return redirect()->route('dashboard.reviews.index')->with('global', 'Запись успешно обновлена.');
     }
 
     /**
@@ -70,12 +68,12 @@ class ProductReviewController extends Controller
     public function destroy(ProductReview $review)
     {
         $review->delete();
-        return redirect()->route('reviews.index')->with('global', 'Запись успешно удалена.');
+        return redirect()->route('dashboard.reviews.index')->with('global', 'Запись успешно удалена.');
     }
 
     public function confirm(ProductReview $review)
     {
         $review->update(['is_confirmed' => !$review->is_confirmed]);
-        return redirect()->route('reviews.index');
+        return redirect()->route('dashboard.reviews.index');
     }
 }

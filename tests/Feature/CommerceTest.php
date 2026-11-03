@@ -1,5 +1,10 @@
 <?php
 
+use App\Enums\DeliveryStatus;
+use App\Enums\OrderStatus;
+use App\Enums\PaymentStatus;
+use App\Enums\RefundStatus;
+use App\Enums\ReservationStatus;
 use App\Models\InventoryBalance;
 use App\Models\Order;
 use App\Models\PickupPoint;
@@ -43,10 +48,11 @@ it('creates a guest order from server prices and reserves stock', function () {
     $product = commerceProduct();
     $response = $this->postJson('/shop/orders', courierOrderData($product), ['Idempotency-Key' => (string) \Illuminate\Support\Str::uuid()]);
 
-    $response->assertCreated()->assertJsonPath('total', '350.00');
+    $response->assertCreated()->assertJsonPath('total', '350.00')->assertJsonPath('status', 'confirmed');
     $order = Order::firstOrFail();
     expect($order->user_id)->toBeNull()
-        ->and($order->status)->toBe('confirmed')
+        ->and($order->status)->toBe(OrderStatus::Confirmed)
+        ->and($order->items->first()->reservation->status)->toBe(ReservationStatus::Active)
         ->and($order->items->first()->unit_price)->toBe('125.50')
         ->and($order->items->first()->quantity)->toBe(2)
         ->and($order->delivery->city)->toBe('Москва');
@@ -78,6 +84,17 @@ it('supports pickup for an authenticated buyer and preserves the point address',
     $point->update(['address' => 'Новый адрес']);
     expect($order->user_id)->toBe($user->id)
         ->and($order->delivery->address_snapshot)->toBe('Москва, Центр, 1');
+
+    $orders = app(OrderService::class);
+    expect(fn () => $orders->updateDelivery($order, DeliveryStatus::Delivered))
+        ->toThrow(\Illuminate\Validation\ValidationException::class);
+    expect($order->delivery->fresh()->status)->toBe(DeliveryStatus::Pending);
+
+    $orders->updateDelivery($order, DeliveryStatus::Preparing);
+    $orders->updateDelivery($order, DeliveryStatus::ReadyForPickup);
+    expect(InventoryBalance::find($product->id)->on_hand)->toBe(3);
+    $orders->updateDelivery($order, DeliveryStatus::Delivered);
+    expect(InventoryBalance::find($product->id)->on_hand)->toBe(2);
 });
 
 it('releases an expired online reservation and ignores a repeated webhook', function () {
@@ -90,26 +107,30 @@ it('releases an expired online reservation and ignores a repeated webhook', func
     $order->update(['expires_at' => now()->subMinute()]);
 
     expect(app(OrderService::class)->expireUnpaid())->toBe(1);
-    expect($order->fresh()->status)->toBe('cancelled')
+    expect($order->fresh()->status)->toBe(OrderStatus::Cancelled)
+        ->and($order->items->first()->reservation->fresh()->status)->toBe(ReservationStatus::Released)
         ->and(InventoryBalance::find($product->id)->reserved)->toBe(0);
 
     app(OrderService::class)->recordOnlinePayment($payment, 'provider', 'payment-1', 'event-1', 'paid', true, $payment->amount, 'RUB');
     app(OrderService::class)->recordOnlinePayment($payment, 'provider', 'payment-1', 'event-1', 'paid', true, $payment->amount, 'RUB');
-    expect($order->fresh()->status)->toBe('cancelled')
-        ->and($payment->fresh()->refunds()->count())->toBe(1);
+    expect($order->fresh()->status)->toBe(OrderStatus::Cancelled)
+        ->and($payment->fresh()->refunds()->count())->toBe(1)
+        ->and($payment->refunds()->firstOrFail()->status)->toBe(RefundStatus::Pending);
 });
 
 it('completes a courier order only after delivery and payment', function () {
     $product = commerceProduct();
     $order = app(OrderService::class)->place(courierOrderData($product, 1));
     $service = app(OrderService::class);
-    $service->updateDelivery($order, 'preparing');
-    $service->updateDelivery($order, 'in_transit');
+    $service->updateDelivery($order, DeliveryStatus::Preparing);
+    $service->updateDelivery($order, DeliveryStatus::InTransit);
     expect(InventoryBalance::find($product->id)->on_hand)->toBe(2);
-    $service->updateDelivery($order, 'delivered');
-    expect($order->fresh()->status)->toBe('processing');
+    expect($order->items->first()->reservation->fresh()->status)->toBe(ReservationStatus::Consumed);
+    $service->updateDelivery($order, DeliveryStatus::Delivered);
+    expect($order->fresh()->status)->toBe(OrderStatus::Processing);
     $service->markPaymentAtDelivery($order);
-    expect($order->fresh()->status)->toBe('completed');
+    expect($order->fresh()->status)->toBe(OrderStatus::Completed)
+        ->and($order->payments()->firstOrFail()->status)->toBe(PaymentStatus::Succeeded);
 });
 
 it('does not duplicate an order when checkout is retried with the same key', function () {
@@ -129,15 +150,15 @@ it('restocks only after a failed courier delivery is physically returned', funct
     $product = commerceProduct(1);
     $order = app(OrderService::class)->place(courierOrderData($product, 1));
     $orders = app(OrderService::class);
-    $orders->updateDelivery($order, 'preparing');
-    $orders->updateDelivery($order, 'in_transit');
-    $orders->updateDelivery($order, 'failed');
+    $orders->updateDelivery($order, DeliveryStatus::Preparing);
+    $orders->updateDelivery($order, DeliveryStatus::InTransit);
+    $orders->updateDelivery($order, DeliveryStatus::Failed);
     expect(InventoryBalance::find($product->id)->on_hand)->toBe(0);
 
     $orders->returnFailedDelivery($order);
     expect(InventoryBalance::find($product->id)->on_hand)->toBe(1)
-        ->and($order->fresh()->status)->toBe('cancelled')
-        ->and($order->delivery->fresh()->status)->toBe('returned');
+        ->and($order->fresh()->status)->toBe(OrderStatus::Cancelled)
+        ->and($order->delivery->fresh()->status)->toBe(DeliveryStatus::Returned);
 });
 
 it('requires an admin account for dashboard orders', function () {
@@ -149,7 +170,16 @@ it('requires an admin account for dashboard orders', function () {
 
     $product = commerceProduct();
     $order = app(OrderService::class)->place(courierOrderData($product, 1));
-    $this->actingAs($customer)->get('/dashboard/orders/'.$order->id)->assertOk();
+    $this->actingAs($customer)->get('/dashboard/orders/'.$order->id)
+        ->assertOk()
+        ->assertSee('value="preparing"', false)
+        ->assertDontSee('value="in_transit"', false);
+    $this->actingAs($customer)->put('/dashboard/orders/'.$order->id.'/delivery', ['status' => 'preparing'])
+        ->assertRedirect();
+    $this->actingAs($customer)->get('/dashboard/orders/'.$order->id)
+        ->assertOk()
+        ->assertSee('value="in_transit"', false)
+        ->assertDontSee('value="ready_for_pickup"', false);
     $this->actingAs($customer)->get('/dashboard/products/'.$product->id.'/edit')->assertOk();
 });
 
@@ -162,8 +192,8 @@ it('rejects an online callback with a mismatched amount', function () {
     expect(fn () => app(OrderService::class)->recordOnlinePayment(
         $payment, 'provider', 'payment-2', 'event-2', 'paid', true, '1.00', 'RUB'
     ))->toThrow(\Illuminate\Validation\ValidationException::class);
-    expect($order->fresh()->status)->toBe('awaiting_payment')
-        ->and($payment->fresh()->status)->toBe('pending');
+    expect($order->fresh()->status)->toBe(OrderStatus::AwaitingPayment)
+        ->and($payment->fresh()->status)->toBe(PaymentStatus::Pending);
 });
 
 it('does not allow courier checkout before a delivery price is configured', function () {

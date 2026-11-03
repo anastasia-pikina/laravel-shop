@@ -26,15 +26,15 @@ class PickupPointController extends Controller
         return back()->with('global', 'Точка самовывоза добавлена.');
     }
 
-    public function update(Request $request, PickupPoint $point)
+    public function update(Request $request, PickupPoint $pickup_point)
     {
         $data = $request->validate([
-            'code' => ['required', 'string', 'max:255', Rule::unique('pickup_points', 'code')->ignore($point->id)],
+            'code' => ['required', 'string', 'max:255', Rule::unique('pickup_points', 'code')->ignore($pickup_point->id)],
             'name' => ['required', 'string', 'max:255'],
             'address' => ['required', 'string', 'max:255'],
             'is_active' => ['required', 'boolean'],
         ]);
-        $point->update($data);
+        $pickup_point->update($data);
 
         return back()->with('global', 'Точка самовывоза обновлена.');
     }

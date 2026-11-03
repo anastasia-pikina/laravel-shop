@@ -1,7 +1,7 @@
 @extends('dashboard.layouts.master')
 @section('content')
     <h1 class="text-2xl font-bold text-gray-800">Редактировать запись</h1>
-    <form action="{{ route('categories.update', $category) }}" method="POST" class="max-w-lg mt-6 space-y-4">
+    <form action="{{ route('dashboard.categories.update', $category) }}" method="POST" class="max-w-lg mt-6 space-y-4">
         @csrf
         @method('PUT')
         <div>

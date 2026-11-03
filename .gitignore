@@ -1,5 +1,6 @@
 /.phpunit.cache
 /node_modules
+/resources/js/shop-app/node_modules
 /public/build
 /public/css/filament
 /public/fonts/filament

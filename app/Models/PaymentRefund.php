@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\RefundStatus;
 use Illuminate\Database\Eloquent\Model;
 
 class PaymentRefund extends Model
@@ -10,6 +11,6 @@ class PaymentRefund extends Model
 
     protected function casts(): array
     {
-        return ['amount' => 'decimal:2', 'refunded_at' => 'datetime'];
+        return ['status' => RefundStatus::class, 'amount' => 'decimal:2', 'refunded_at' => 'datetime'];
     }
 }

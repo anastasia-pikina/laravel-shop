@@ -2,10 +2,14 @@
 
 namespace App\Services;
 
+use App\Enums\DeliveryStatus;
+use App\Enums\OrderStatus;
+use App\Enums\PaymentStatus;
+use App\Enums\RefundStatus;
+use App\Enums\ReservationStatus;
 use App\Models\InventoryBalance;
 use App\Models\Order;
 use App\Models\Payment;
-use App\Models\PaymentRefund;
 use App\Models\PaymentWebhookEvent;
 use App\Models\PickupPoint;
 use App\Models\Product;
@@ -83,7 +87,7 @@ class OrderService
                 'customer_name' => $data['customer_name'],
                 'customer_email' => $data['customer_email'],
                 'customer_phone' => $data['customer_phone'],
-                'status' => $online ? 'awaiting_payment' : 'confirmed',
+                'status' => $online ? OrderStatus::AwaitingPayment : OrderStatus::Confirmed,
                 'payment_method' => $data['payment_method'],
                 'currency' => 'RUB',
                 'subtotal' => Money::fromKopeks($subtotal),
@@ -106,14 +110,14 @@ class OrderService
                 $balances->get($id)->increment('reserved', $line['quantity']);
                 $item->reservation()->create([
                     'quantity' => $line['quantity'],
-                    'status' => 'active',
+                    'status' => ReservationStatus::Active,
                     'expires_at' => $expiresAt,
                 ]);
             }
 
             $order->delivery()->create([
                 'method' => $delivery['method'],
-                'status' => 'pending',
+                'status' => DeliveryStatus::Pending,
                 'recipient_name' => $delivery['recipient_name'],
                 'recipient_phone' => $delivery['recipient_phone'],
                 'pickup_point_id' => $pickupPoint?->id,
@@ -129,7 +133,7 @@ class OrderService
             $order->payments()->create([
                 'method' => $data['payment_method'],
                 'idempotency_key' => (string) Str::uuid(),
-                'status' => 'pending',
+                'status' => PaymentStatus::Pending,
                 'amount' => $order->total,
                 'currency' => 'RUB',
             ]);
@@ -148,15 +152,15 @@ class OrderService
     {
         return DB::transaction(function () use ($order) {
             $order = Order::query()->whereKey($order->id)->lockForUpdate()->firstOrFail();
-            if ($order->payment_method !== 'online' || $order->status !== 'awaiting_payment' || $order->expires_at->isPast()) {
+            if ($order->payment_method !== 'online' || $order->status !== OrderStatus::AwaitingPayment || $order->expires_at->isPast()) {
                 throw ValidationException::withMessages(['order' => 'Повторная оплата недоступна.']);
             }
-            if ($order->payments()->where('status', 'succeeded')->exists()) {
+            if ($order->payments()->where('status', PaymentStatus::Succeeded->value)->exists()) {
                 throw ValidationException::withMessages(['order' => 'Заказ уже оплачен.']);
             }
             return $order->payments()->create([
                 'method' => 'online', 'idempotency_key' => (string) Str::uuid(),
-                'status' => 'pending', 'amount' => $order->total, 'currency' => 'RUB',
+                'status' => PaymentStatus::Pending, 'amount' => $order->total, 'currency' => 'RUB',
             ]);
         });
     }
@@ -192,24 +196,24 @@ class OrderService
                 throw ValidationException::withMessages(['payment' => 'Сумма, валюта или ID платежа не совпадают.']);
             }
             $payment->update(['provider' => $provider, 'provider_payment_id' => $providerPaymentId]);
-            if ($succeeded && $payment->status !== 'succeeded') {
-                if ($order->payments()->where('status', 'succeeded')->exists()) {
+            if ($succeeded && $payment->status !== PaymentStatus::Succeeded) {
+                if ($order->payments()->where('status', PaymentStatus::Succeeded->value)->exists()) {
                     // A second successful provider charge must be refunded, not applied twice.
-                    $payment->update(['status' => 'succeeded', 'paid_at' => now()]);
+                    $payment->update(['status' => PaymentStatus::Succeeded, 'paid_at' => now()]);
                     $this->queueRefund($payment, 'duplicate_payment');
                 } else {
-                    $payment->update(['status' => 'succeeded', 'paid_at' => now()]);
-                    if ($order->status === 'awaiting_payment' && $order->expires_at->isFuture()) {
-                        $order->update(['status' => 'confirmed']);
+                    $payment->update(['status' => PaymentStatus::Succeeded, 'paid_at' => now()]);
+                    if ($order->status === OrderStatus::AwaitingPayment && $order->expires_at->isFuture()) {
+                        $order->update(['status' => OrderStatus::Confirmed]);
                     } else {
-                        if ($order->status === 'awaiting_payment') {
+                        if ($order->status === OrderStatus::AwaitingPayment) {
                             $this->cancelLocked($order);
                         }
                         $this->queueRefund($payment, 'late_payment');
                     }
                 }
-            } elseif (! $succeeded && $payment->status === 'pending') {
-                $payment->update(['status' => 'failed']);
+            } elseif (! $succeeded && $payment->status === PaymentStatus::Pending) {
+                $payment->update(['status' => PaymentStatus::Failed]);
             }
             PaymentWebhookEvent::query()->where('provider', $provider)->where('provider_event_id', $eventId)
                 ->update(['processed_at' => now()]);
@@ -220,7 +224,7 @@ class OrderService
     {
         DB::transaction(function () use ($order) {
             $locked = Order::query()->whereKey($order->id)->lockForUpdate()->firstOrFail();
-            if (! in_array($locked->status, ['awaiting_payment', 'confirmed', 'processing'], true)
+            if (! $locked->status->allowsCancellation()
                 || $locked->delivery->handed_over_at) {
                 throw ValidationException::withMessages(['order' => 'Отмена заказа недоступна.']);
             }
@@ -231,10 +235,10 @@ class OrderService
     public function expireUnpaid(): int
     {
         $count = 0;
-        foreach (Order::query()->where('status', 'awaiting_payment')->where('expires_at', '<=', now())->pluck('id') as $id) {
+        foreach (Order::query()->where('status', OrderStatus::AwaitingPayment->value)->where('expires_at', '<=', now())->pluck('id') as $id) {
             DB::transaction(function () use ($id, &$count) {
                 $order = Order::query()->whereKey($id)->lockForUpdate()->first();
-                if ($order && $order->status === 'awaiting_payment' && $order->expires_at->isPast()) {
+                if ($order && $order->status === OrderStatus::AwaitingPayment && $order->expires_at->isPast()) {
                     $this->cancelLocked($order);
                     $count++;
                 }
@@ -243,30 +247,27 @@ class OrderService
         return $count;
     }
 
-    public function updateDelivery(Order $order, string $status): void
+    public function updateDelivery(Order $order, DeliveryStatus $status): void
     {
         DB::transaction(function () use ($order, $status) {
             $order = Order::query()->whereKey($order->id)->lockForUpdate()->firstOrFail();
             $delivery = $order->delivery;
-            if (! in_array($order->status, ['confirmed', 'processing'], true)) {
+            if (! $order->status->allowsDeliveryUpdate()) {
                 throw ValidationException::withMessages(['order' => 'Заказ не готов к доставке.']);
             }
-            $allowed = $delivery->method === 'pickup'
-                ? ['pending' => ['preparing'], 'preparing' => ['ready_for_pickup'], 'ready_for_pickup' => ['delivered']]
-                : ['pending' => ['preparing'], 'preparing' => ['in_transit'], 'in_transit' => ['delivered', 'failed']];
-            if (! in_array($status, $allowed[$delivery->status] ?? [], true)) {
+            if (! $delivery->status->canTransitionTo($status, $delivery->method)) {
                 throw ValidationException::withMessages(['delivery' => 'Недопустимый переход статуса доставки.']);
             }
-            if ($status === 'in_transit' || ($delivery->method === 'pickup' && $status === 'delivered')) {
+            if ($status === DeliveryStatus::InTransit || ($delivery->method === 'pickup' && $status === DeliveryStatus::Delivered)) {
                 $this->consumeReservations($order);
             }
             $delivery->update([
                 'status' => $status,
-                'handed_over_at' => in_array($status, ['in_transit', 'delivered'], true) && ! $delivery->handed_over_at ? now() : $delivery->handed_over_at,
-                'delivered_at' => $status === 'delivered' ? now() : null,
+                'handed_over_at' => in_array($status, [DeliveryStatus::InTransit, DeliveryStatus::Delivered], true) && ! $delivery->handed_over_at ? now() : $delivery->handed_over_at,
+                'delivered_at' => $status === DeliveryStatus::Delivered ? now() : null,
             ]);
-            if ($order->status === 'confirmed') {
-                $order->update(['status' => 'processing']);
+            if ($order->status === OrderStatus::Confirmed) {
+                $order->update(['status' => OrderStatus::Processing]);
             }
             $this->completeIfReady($order);
         }, 3);
@@ -276,13 +277,13 @@ class OrderService
     {
         DB::transaction(function () use ($order) {
             $order = Order::query()->whereKey($order->id)->lockForUpdate()->firstOrFail();
-            if ($order->payment_method !== 'on_delivery' || $order->delivery->status !== 'delivered'
-                || ! in_array($order->status, ['confirmed', 'processing'], true)) {
+            if ($order->payment_method !== 'on_delivery' || $order->delivery->status !== DeliveryStatus::Delivered
+                || ! $order->status->allowsDeliveryUpdate()) {
                 throw ValidationException::withMessages(['payment' => 'Оплата при получении недоступна.']);
             }
             $payment = $order->payments()->lockForUpdate()->firstOrFail();
-            if ($payment->status === 'pending') {
-                $payment->update(['status' => 'succeeded', 'paid_at' => now()]);
+            if ($payment->status === PaymentStatus::Pending) {
+                $payment->update(['status' => PaymentStatus::Succeeded, 'paid_at' => now()]);
             }
             $this->completeIfReady($order);
         }, 3);
@@ -292,15 +293,15 @@ class OrderService
     {
         DB::transaction(function () use ($order) {
             $order = Order::query()->whereKey($order->id)->lockForUpdate()->firstOrFail();
-            if ($order->delivery->method !== 'courier' || $order->delivery->status !== 'failed') {
+            if ($order->delivery->method !== 'courier' || $order->delivery->status !== DeliveryStatus::Failed) {
                 throw ValidationException::withMessages(['delivery' => 'Возврат недоступен.']);
             }
             foreach ($order->items()->with('reservation')->orderBy('product_id')->get() as $item) {
                 $this->inventory->returnSale($item->reservation);
             }
-            $order->delivery->update(['status' => 'returned']);
-            $order->update(['status' => 'cancelled', 'cancelled_at' => now()]);
-            foreach ($order->payments()->where('status', 'succeeded')->get() as $payment) {
+            $order->delivery->update(['status' => DeliveryStatus::Returned]);
+            $order->update(['status' => OrderStatus::Cancelled, 'cancelled_at' => now()]);
+            foreach ($order->payments()->where('status', PaymentStatus::Succeeded->value)->get() as $payment) {
                 $this->queueRefund($payment, 'returned_delivery');
             }
         }, 3);
@@ -311,11 +312,11 @@ class OrderService
         foreach ($order->items()->with('reservation')->orderBy('product_id')->get() as $item) {
             $this->inventory->release($item->reservation);
         }
-        $order->update(['status' => 'cancelled', 'cancelled_at' => now()]);
-        foreach ($order->payments()->where('status', 'succeeded')->get() as $payment) {
+        $order->update(['status' => OrderStatus::Cancelled, 'cancelled_at' => now()]);
+        foreach ($order->payments()->where('status', PaymentStatus::Succeeded->value)->get() as $payment) {
             $this->queueRefund($payment, 'order_cancelled');
         }
-        $order->delivery->update(['status' => 'cancelled']);
+        $order->delivery->update(['status' => DeliveryStatus::Cancelled]);
     }
 
     private function consumeReservations(Order $order): void
@@ -327,8 +328,8 @@ class OrderService
 
     private function completeIfReady(Order $order): void
     {
-        if ($order->delivery->fresh()->status === 'delivered' && $order->payments()->where('status', 'succeeded')->exists()) {
-            $order->update(['status' => 'completed', 'completed_at' => now()]);
+        if ($order->delivery->fresh()->status === DeliveryStatus::Delivered && $order->payments()->where('status', PaymentStatus::Succeeded->value)->exists()) {
+            $order->update(['status' => OrderStatus::Completed, 'completed_at' => now()]);
         }
     }
 
@@ -337,7 +338,7 @@ class OrderService
         if (! $payment->refunds()->exists()) {
             $payment->refunds()->create([
                 'provider' => $payment->provider,
-                'status' => 'pending',
+                'status' => RefundStatus::Pending,
                 'amount' => $payment->amount,
                 'reason' => $reason,
             ]);

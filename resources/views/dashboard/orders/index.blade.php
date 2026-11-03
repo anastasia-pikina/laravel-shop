@@ -11,7 +11,7 @@
                     <td class="p-3">{{ $order->placed_at->format('d.m.Y H:i') }}</td>
                     <td class="p-3">{{ $order->customer_name }}</td>
                     <td class="p-3">{{ $order->total }} ₽</td>
-                    <td class="p-3">{{ $order->status }}</td>
+                    <td class="p-3">{{ $order->status->value }}</td>
                 </tr>
             @endforeach
             </tbody>

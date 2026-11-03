@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\ReservationStatus;
 use App\Models\InventoryBalance;
 use App\Models\InventoryMovement;
 use App\Models\StockReservation;
@@ -32,24 +33,24 @@ class InventoryService
 
     public function release(StockReservation $reservation): void
     {
-        if ($reservation->status !== 'active') {
+        if ($reservation->status !== ReservationStatus::Active) {
             return;
         }
         $balance = InventoryBalance::query()->whereKey($reservation->item->product_id)->lockForUpdate()->firstOrFail();
         $balance->decrement('reserved', $reservation->quantity);
-        $reservation->update(['status' => 'released', 'released_at' => now()]);
+        $reservation->update(['status' => ReservationStatus::Released, 'released_at' => now()]);
     }
 
     public function consume(StockReservation $reservation): void
     {
-        if ($reservation->status !== 'active') {
+        if ($reservation->status !== ReservationStatus::Active) {
             return;
         }
         $item = $reservation->item;
         $balance = InventoryBalance::query()->whereKey($item->product_id)->lockForUpdate()->firstOrFail();
         $balance->decrement('reserved', $reservation->quantity);
         $balance->decrement('on_hand', $reservation->quantity);
-        $reservation->update(['status' => 'consumed', 'consumed_at' => now()]);
+        $reservation->update(['status' => ReservationStatus::Consumed, 'consumed_at' => now()]);
         InventoryMovement::create([
             'product_id' => $item->product_id,
             'order_item_id' => $item->id,
@@ -61,7 +62,7 @@ class InventoryService
 
     public function returnSale(StockReservation $reservation): void
     {
-        if ($reservation->status !== 'consumed') {
+        if ($reservation->status !== ReservationStatus::Consumed) {
             return;
         }
         $item = $reservation->item;

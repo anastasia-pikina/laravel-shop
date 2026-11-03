@@ -15,7 +15,7 @@ class OrderController extends Controller
 
         return response()->json([
             'number' => $order->number,
-            'status' => $order->status,
+            'status' => $order->status->value,
             'payment_method' => $order->payment_method,
             'currency' => $order->currency,
             'subtotal' => $order->subtotal,

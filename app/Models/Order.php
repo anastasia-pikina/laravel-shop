@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\OrderStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -14,6 +15,7 @@ class Order extends Model
     protected function casts(): array
     {
         return [
+            'status' => OrderStatus::class,
             'placed_at' => 'datetime', 'expires_at' => 'datetime',
             'cancelled_at' => 'datetime', 'completed_at' => 'datetime',
             'subtotal' => 'decimal:2', 'delivery_amount' => 'decimal:2', 'total' => 'decimal:2',

@@ -58,8 +58,8 @@ class ProductCategoryController extends Controller
         ProductCategory::create($data);
 
         $redirect = isset($data['parent_category_id'])
-            ? route('categories.index', ['parent_id' => $data['parent_category_id']])
-            : route('categories.index');
+            ? route('dashboard.categories.index', ['parent_id' => $data['parent_category_id']])
+            : route('dashboard.categories.index');
 
         return redirect($redirect)->with('global', 'Запись успешно создана.');
     }
@@ -90,7 +90,7 @@ class ProductCategoryController extends Controller
     {
         $category->update($request->validated());
 
-        return redirect()->route('categories.index')->with('global', 'Запись успешно обновлена.');
+        return redirect()->route('dashboard.categories.index')->with('global', 'Запись успешно обновлена.');
     }
 
     /**
@@ -99,6 +99,6 @@ class ProductCategoryController extends Controller
     public function destroy(ProductCategory $category)
     {
         $category->delete();
-        return redirect()->route('categories.index')->with('global', 'Запись успешно удалена.');
+        return redirect()->route('dashboard.categories.index')->with('global', 'Запись успешно удалена.');
     }
 }
