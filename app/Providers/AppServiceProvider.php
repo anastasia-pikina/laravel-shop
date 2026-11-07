@@ -2,23 +2,27 @@
 
 namespace App\Providers;
 
+use App\Support\EnumCatalog;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Gate;
 use App\Models\User;
 
+/**
+ * Register application services and authorization rules.
+ */
 class AppServiceProvider extends ServiceProvider
 {
     /**
-     * Register any application services.
+     * @return void
      */
     public function register(): void
     {
-        //
+        $this->app->scoped(EnumCatalog::class);
     }
 
     /**
-     * Bootstrap any application services.
+     * @return void
      */
     public function boot(): void
     {
